@@ -1,0 +1,85 @@
+/* Provide sufficient contrast against white background */
+a {
+  color: #0366d6;
+}
+
+code {
+  color: #E01A76;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+html {
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    margin: 0px;
+    min-height: 100%;
+    width: 100%;
+}
+
+.mainDiv {
+    background-image: url('images/GolfMapBackground.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+    .mainDiv .backgroundMap {
+        width: auto;
+        height: auto;
+    }
+
+    .mainDiv .buttonPanel {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        background-image: url('images/navBackground.png');
+        background-size: cover;
+    }
+
+        .mainDiv .buttonPanel .logo {
+            width: 200px;
+        }
+
+        .mainDiv .buttonPanel .buttonPanel-btn {
+            border-radius: 10px;
+            background-color: #004466;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            width: 150px;
+            height: 60px;
+            margin-left: 10px;
+            font-size: 18px;
+            text-align: center;
+            font-family: Georgia;
+        }
+
+        .mainDiv .buttonPanel .droneData-btn {
+            border-radius: 10px;
+            background-color: #004466;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            width: 60px;
+            height: 40px;
+            margin-left: 100px;
+            font-size: 12px;
+            text-align: center;
+            font-family: Georgia;
+        }
+
+        .mainDiv .buttonPanel .drone1Txt {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .mainDiv ,background {
+            position: center;
+            width: 1000px;
+            hight: 500px;
+        }

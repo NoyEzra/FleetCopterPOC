@@ -1,0 +1,417 @@
+{
+  "version" : {
+    "major" : 4,
+    "minor" : 0,
+    "build" : 187,
+    "component" : "DATABASE"
+  },
+  "payloadProfiles" : [ {
+    "name" : "GoPro Hero3 Black Edition",
+    "payloadType" : "CAMERA",
+    "imageKey" : "gopro_hero_3",
+    "parameters" : {
+      "weight" : 0.074,
+      "frequency" : 0.0,
+      "power" : 0.0,
+      "trueFocalLength" : 0.0028,
+      "sensorWidth" : 0.00617,
+      "sensorHeight" : 0.00455,
+      "sensorHorizontalPixels" : 4000.0,
+      "sensorVerticalPixels" : 3000.0,
+      "minTriggeringInterval" : 1.0
+    }
+  } ],
+  "vehicleProfiles" : [ {
+    "name" : "Quadcopter Emulator",
+    "vehicleType" : "MULTICOPTER",
+    "modelKey" : "3dr_arducopter_quad",
+    "imageKey" : "3dr_arducopter_quad",
+    "platformCode" : "Emulator",
+    "primary" : true,
+    "payloadProfiles" : [ "GoPro Hero3 Black Edition" ],
+    "parameters" : {
+      "height" : 0.17,
+      "width" : 0.8,
+      "length" : 0.8,
+      "maxClimbRate" : 5.0,
+      "maxHorizontalSpeed" : 10.0,
+      "maxAltitude" : 3000.0,
+      "maxWaypoints" : 120.0,
+      "maxFlightTime" : 1200.0,
+      "windResistance" : 10.0,
+      "dryTakeoffWeight" : 1.2,
+      "maxTakeoffWeight" : 1.6,
+      "batteryWeight" : 0.2,
+      "chargedBatteryVoltage" : 12.6,
+      "dischargedBatteryVoltage" : 9.5,
+      "normalBatteryVoltage" : 10.5,
+      "lowBatteryVoltage" : 10.0,
+      "lowGpsSatellites" : 7.0,
+      "normalGpsSatellites" : 9.0,
+      "safeDistanceToTerrain" : 5.0,
+      "safeDistanceToObstacle" : 20.0,
+      "waypointAcceptanceRadius" : 2.0,
+      "fenceRadius" : 500.0,
+      "fenceAltitude" : 150.0,
+      "lowTelemetryLevel" : 50.0,
+      "normalTelemetryLevel" : 70.0,
+      "defaultClimbRate" : 2.0,
+      "defaultDescentRate" : 1.0,
+      "glideSlope" : null,
+      "defaultHorizontalSpeed" : 5.0,
+      "landingGroundSpeed" : null,
+      "maxAltitudeAgl" : 120.0,
+      "landingFlareAltitude" : null,
+      "landingFlareTime" : null,
+      "minLandingPitch" : null,
+      "landingFlareDamp" : null,
+      "landingApproachAirspeed" : null,
+      "landingSpeedWeighting" : null,
+      "maxAutoFlightPitch" : null,
+      "maxPitch" : null,
+      "minThrottle" : null,
+      "landingSinkRate" : null,
+      "landingRangefinderEnabled" : null,
+      "minRangefinderDistance" : null,
+      "maxDescentRate" : 5.0,
+      "lowBatteryPowerLevel" : 20.0,
+      "normalBatteryPowerLevel" : 50.0,
+      "maxRangefinderDistance" : null,
+      "minDistanceBetweenWaypoint" : null
+    }
+  } ],
+  "vehicles" : [ {
+    "name" : "EMU-101",
+    "vehicleId" : 3518325117,
+    "icaoAddress" : null,
+    "tailNumber" : null,
+    "type" : "MULTICOPTER",
+    "platformCode" : "Emulator",
+    "profile" : "Quadcopter Emulator",
+    "emulator" : true,
+    "serialNumber" : "101",
+    "port" : "tcp:127.0.0.1:14555",
+    "source" : "VSM"
+  } ],
+  "mission" : {
+    "name" : "Demo mission",
+    "description" : null,
+    "creationTime" : 1501144514756,
+    "routes" : [ {
+      "name" : "Ganei Tikva",
+      "creationTime" : 1609088377260,
+      "scheduledTime" : 1609065347708,
+      "startDelay" : 0.0,
+      "vehicleProfile" : "Quadcopter Emulator",
+      "trajectoryType" : "STRAIGHT",
+      "safeAltitude" : 50.0,
+      "maxAltitude" : 120.0,
+      "initialSpeed" : 0.0,
+      "maxSpeed" : 0.0,
+      "failsafes" : {
+        "rcLost" : "GO_HOME",
+        "gpsLost" : "WAIT",
+        "lowBattery" : "LAND",
+        "datalinkLost" : "GO_HOME"
+      },
+      "checkAerodromeNfz" : true,
+      "checkCustomNfz" : true,
+      "segments" : [ {
+        "type" : "TakeOff",
+        "actions" : [ {
+          "type" : "CameraTrigger",
+          "state" : "START_RECORDING"
+        } ],
+        "point" : {
+          "latitude" : 0.5595601084837263,
+          "longitude" : 0.6088113975661215,
+          "altitude" : 20.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595638736352524,
+          "longitude" : 0.6088244411371831,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595563018864356,
+          "longitude" : 0.6088257057411096,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Circle",
+        "actions" : [ {
+          "type" : "Poi",
+          "mode" : "AUTO",
+          "latitude" : null,
+          "longitude" : null,
+          "wgs84Altitude" : null,
+          "aglAltitude" : null,
+          "altitudeType" : "WGS84"
+        } ],
+        "parameters" : {
+          "actionExecution" : "ACTIONS_EVERY_POINT",
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "basePointsQnt" : null,
+          "flightClockwise" : true,
+          "followTerrain" : true,
+          "loops" : 1,
+          "noActionsAtLastPoint" : false,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        },
+        "circle" : {
+          "center" : {
+            "latitude" : 0.5595566700986185,
+            "longitude" : 0.6088220840629488,
+            "altitude" : 50.0,
+            "altitudeType" : "AGL"
+          },
+          "radius" : 13.830374479293823
+        }
+      }, {
+        "type" : "Landing",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595572815490639,
+          "longitude" : 0.6088118721606014,
+          "altitude" : 0.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "altitudeType" : "AGL"
+        }
+      } ],
+      "takeoffHeight" : null
+    }, {
+      "name" : "Simulation Route1",
+      "creationTime" : 1609752073010,
+      "scheduledTime" : 1609752069004,
+      "startDelay" : 0.0,
+      "vehicleProfile" : "Quadcopter Emulator",
+      "trajectoryType" : "STRAIGHT",
+      "safeAltitude" : 50.0,
+      "maxAltitude" : 120.0,
+      "initialSpeed" : null,
+      "maxSpeed" : null,
+      "failsafes" : {
+        "rcLost" : "GO_HOME",
+        "gpsLost" : "WAIT",
+        "lowBattery" : "LAND",
+        "datalinkLost" : "GO_HOME"
+      },
+      "checkAerodromeNfz" : true,
+      "checkCustomNfz" : false,
+      "segments" : [ {
+        "type" : "TakeOff",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595717232435278,
+          "longitude" : 0.6088145914754625,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595721716777704,
+          "longitude" : 0.6088245674745254,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595795404671318,
+          "longitude" : 0.6088270656137512,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Landing",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595771428841405,
+          "longitude" : 0.6088154104349354,
+          "altitude" : 0.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "altitudeType" : "AGL"
+        }
+      } ],
+      "takeoffHeight" : 30.0
+    }, {
+      "name" : "Simulation Rout2",
+      "creationTime" : 1609764101922,
+      "scheduledTime" : 1609764097775,
+      "startDelay" : 0.0,
+      "vehicleProfile" : "Quadcopter Emulator",
+      "trajectoryType" : "STRAIGHT",
+      "safeAltitude" : 50.0,
+      "maxAltitude" : 120.0,
+      "initialSpeed" : null,
+      "maxSpeed" : null,
+      "failsafes" : {
+        "rcLost" : "GO_HOME",
+        "gpsLost" : "WAIT",
+        "lowBattery" : "LAND",
+        "datalinkLost" : "GO_HOME"
+      },
+      "checkAerodromeNfz" : true,
+      "checkCustomNfz" : false,
+      "segments" : [ {
+        "type" : "TakeOff",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595443897824479,
+          "longitude" : 0.608815144877589,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595440997863661,
+          "longitude" : 0.608827190619668,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595422721685019,
+          "longitude" : 0.6088390850639583,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595318929216608,
+          "longitude" : 0.6088399603324738,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595303878936564,
+          "longitude" : 0.608831744638707,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Landing",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.559535727869088,
+          "longitude" : 0.6088240354117337,
+          "altitude" : 0.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "altitudeType" : "AGL"
+        }
+      } ],
+      "takeoffHeight" : 30.0
+    } ],
+    "vehicles" : [ "EMU-101" ]
+  }
+}
