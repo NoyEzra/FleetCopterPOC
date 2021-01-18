@@ -24,10 +24,13 @@ body {
     width: 100%;
 }
 
+
 .mainDiv {
-    background-image: url('images/GolfMapBackground.png');
-    background-repeat: no-repeat;
-    background-size: cover;
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    width: 100%;
+    overflow: hidden;
 }
 
     .mainDiv .backgroundMap {
@@ -46,6 +49,9 @@ body {
 
         .mainDiv .buttonPanel .logo {
             width: 200px;
+            hight: 50px;
+            margin-right: 20px;
+            margin-left: 40px;
         }
 
         .mainDiv .buttonPanel .buttonPanel-btn {
@@ -53,11 +59,12 @@ body {
             background-color: #004466;
             box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
             width: 150px;
-            height: 60px;
-            margin-left: 10px;
-            font-size: 18px;
+            height: 50px;
+            margin-left: 5px;
+            font-size: 15px;
             text-align: center;
             font-family: Georgia;
+            color: white;
         }
 
         .mainDiv .buttonPanel .droneData-btn {
@@ -66,20 +73,16 @@ body {
             box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
             width: 60px;
             height: 40px;
-            margin-left: 100px;
+            margin-left: 140px;
+            margin-right: 70px;
             font-size: 12px;
             text-align: center;
             font-family: Georgia;
         }
 
-        .mainDiv .buttonPanel .drone1Txt {
-            display: flex;
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .mainDiv ,background {
-            position: center;
-            width: 1000px;
-            hight: 500px;
-        }
+    .mainDiv .backgroundDiv{
+        position: center;
+        object-position: center;
+        object-fit: cover;
+    }
+    

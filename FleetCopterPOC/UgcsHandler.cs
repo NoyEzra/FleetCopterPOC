@@ -15,7 +15,7 @@ namespace FleetCopterPOC
         public int clientId { get; private set; }
         private MessageExecutor messageExecutor { get; set; }
         private NotificationListener notificationListener { get; set; }
-
+        private Dictionary<int, VehicleTelemetry> vehiclesTelemetry { get; set; }
         public UgcsHandler()
         {
             startConnection(); 
@@ -72,7 +72,7 @@ namespace FleetCopterPOC
             var task = messageExecutor.Submit<GetObjectListResponse>(getObjectListRequest);
             task.Wait();
 
-
+            this.vehiclesTelemetry = new Dictionary<int, VehicleTelemetry>();
             List<Vehicle> vehiclesList = new List<Vehicle>();
             var list = task.Value;
             if (list != null)
@@ -82,6 +82,7 @@ namespace FleetCopterPOC
                     System.Console.WriteLine(string.Format("name: {0}; id: {1}; type: {2}",
                            v.Vehicle.Name, v.Vehicle.Id, v.Vehicle.Type.ToString()));
                     vehiclesList.Add(v.Vehicle);
+                    vehiclesTelemetry.Add(v.Vehicle.Id, new VehicleTelemetry(v.Vehicle.Id));
                 }
 
                 Vehicle vehicle1 = task.Value.Objects.FirstOrDefault().Vehicle;
@@ -266,6 +267,69 @@ namespace FleetCopterPOC
 
         }
 
+        private static object getTelemetryValue(Value telemetryValue)
+        {
+            if (telemetryValue == null)
+            {
+                return null;
+            }
+            if (telemetryValue.IntValueSpecified)
+            {
+                return telemetryValue.IntValue;
+            }
+            if (telemetryValue.LongValueSpecified)
+            {
+                return telemetryValue.LongValue;
+            }
+            if (telemetryValue.StringValueSpecified)
+            {
+                return telemetryValue.StringValue;
+            }
+            if (telemetryValue.BoolValueSpecified)
+            {
+                return telemetryValue.BoolValue;
+            }
+            if (telemetryValue.DoubleValueSpecified)
+            {
+                return telemetryValue.DoubleValue;
+            }
+            if (telemetryValue.FloatValueSpecified)
+            {
+                return telemetryValue.FloatValue;
+            }
+            return null;
+        }
+
+        private void telemetrySubscription()
+        {
+            //TelemetrySubscription
+            var telemetrySubscriptionWrapper = new EventSubscriptionWrapper();
+            telemetrySubscriptionWrapper.TelemetrySubscription = new TelemetrySubscription();
+            SubscribeEventRequest requestTelemetryEvent = new SubscribeEventRequest();
+            requestTelemetryEvent.ClientId = clientId;
+            requestTelemetryEvent.Subscription = telemetrySubscriptionWrapper;
+            var responceTelemetry = messageExecutor.Submit<SubscribeEventResponse>(requestTelemetryEvent);
+            responceTelemetry.Wait();
+            var subscribeEventResponseTelemetry = responceTelemetry.Value;
+            SubscriptionToken stTelemetry = new SubscriptionToken(subscribeEventResponseTelemetry.SubscriptionId, (
+                (notification) =>
+                {
+                    foreach (Telemetry t in notification.Event.TelemetryEvent.Telemetry)
+                    {
+                        if (t.TelemetryField.Code == "altitude_agl")
+                        {
+                            this.vehiclesTelemetry[notification.Event.TelemetryEvent.Vehicle.Id].altitudeAgl = (double)getTelemetryValue(t.Value);
+                            System.Console.WriteLine(getTelemetryValue(t.Value));
+                            System.Console.WriteLine(t.Value.LongValueSpecified);
+                            System.Console.WriteLine(t.Value.DoubleValueSpecified);
+                        }
+                        //System.Console.WriteLine("!!!Vehicle id: {0} Code: {1} Semantic {2} Subsystem {3} Value {4} ToString {5}", notification.Event.TelemetryEvent.Vehicle.Id, t.TelemetryField.Code, t.TelemetryField.Semantic, t.TelemetryField.Subsystem, getTelemetryValue(t.Value), t.TelemetryField.ToString());
+                    }
+                }
+            ), telemetrySubscriptionWrapper);
+            notificationListener.AddSubscription(stTelemetry);
+        }
+
         public void handleSimulationMission(String missionPath)
         {
 
@@ -284,7 +348,7 @@ namespace FleetCopterPOC
             vehicleNotificationSubscription(requestedVehicle);
             vehicleCommandSubscription(requestedVehicle);
             logSubscription();
-
+            telemetrySubscription();
 
             chosenRoute.VehicleProfile = requestedVehicle.Profile;
             chosenRoute.Mission = mission;
@@ -295,6 +359,11 @@ namespace FleetCopterPOC
             uplaodRouteToVehice(chosenRoute, requestedVehicle, clientId, messageExecutor);
             sendCommandToVehicle(requestedVehicle, "arm", clientId, messageExecutor);
             sendCommandToVehicle(requestedVehicle, "auto", clientId, messageExecutor);
+        }
+
+        public double getVehicleAlt(int vehicleId)
+        {
+            return this.vehiclesTelemetry[vehicleId].altitudeAgl;
         }
     }
 }

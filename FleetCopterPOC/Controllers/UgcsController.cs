@@ -20,6 +20,14 @@ namespace FleetCopterPOC.Controllers
         {
             this.ugcsHandler.handleSimulationMission("Demo mission.json");
         }
+
+        public String vehicleAlt()
+        {
+            Double vehicleAlt = this.ugcsHandler.getVehicleAlt(2);
+            return vehicleAlt.ToString();
+        }
+
+
         // GET: UgcsController/Details/5
         public ActionResult Details(int id)
         {
