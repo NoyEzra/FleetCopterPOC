@@ -35,7 +35,7 @@ namespace FleetCopterPOC
                 return;
             }
 
-
+            
             MessageSender messageSender = new MessageSender(tcpClient.Session);
             MessageReceiver messageReceiver = new MessageReceiver(tcpClient.Session);
             messageExecutor = new MessageExecutor(messageSender, messageReceiver, new InstantTaskScheduler());
@@ -193,6 +193,7 @@ namespace FleetCopterPOC
 
         private void vehicleNotificationSubscription(Vehicle vehicle)
         {
+            //copied !!!
             var eventSubscriptionWrapper = new EventSubscriptionWrapper();
             eventSubscriptionWrapper.ObjectModificationSubscription = new ObjectModificationSubscription();
             eventSubscriptionWrapper.ObjectModificationSubscription.ObjectId = vehicle.Id;
@@ -206,7 +207,7 @@ namespace FleetCopterPOC
             SubscriptionToken st = new SubscriptionToken(subscribeEventResponse.SubscriptionId, (
                 (notification) =>
                 {
-                    Console.WriteLine("notification !!!! {0}", notification);
+                    Console.WriteLine("notification - {0}", notification);
                 }
             ), eventSubscriptionWrapper);
             notificationListener.AddSubscription(st);
@@ -214,6 +215,7 @@ namespace FleetCopterPOC
 
         private void vehicleCommandSubscription(Vehicle vehicle)
         {
+            //copied !!
             EventSubscriptionWrapper commandSubscription = new EventSubscriptionWrapper()
             {
                 CommandSubscription = new CommandSubscription(),
@@ -241,6 +243,7 @@ namespace FleetCopterPOC
 
         private void logSubscription()
         {
+            // copied !!
             var logSubscriptionWrapper = new EventSubscriptionWrapper();
             logSubscriptionWrapper.ObjectModificationSubscription = new ObjectModificationSubscription();
             logSubscriptionWrapper.ObjectModificationSubscription.ObjectType = "VehicleLogEntry";
@@ -302,7 +305,7 @@ namespace FleetCopterPOC
 
         private void telemetrySubscription()
         {
-            //TelemetrySubscription
+            //TelemetrySubscription - copied
             var telemetrySubscriptionWrapper = new EventSubscriptionWrapper();
             telemetrySubscriptionWrapper.TelemetrySubscription = new TelemetrySubscription();
             SubscribeEventRequest requestTelemetryEvent = new SubscribeEventRequest();
@@ -318,6 +321,7 @@ namespace FleetCopterPOC
                     {
                         if (t.TelemetryField.Code == "altitude_agl")
                         {
+                            //I added this part - in case the altitudeAGL value changed - update the relevant vehicl's telemetry
                             this.vehiclesTelemetry[notification.Event.TelemetryEvent.Vehicle.Id].altitudeAgl = (double)getTelemetryValue(t.Value);
                             System.Console.WriteLine(getTelemetryValue(t.Value));
                             System.Console.WriteLine(t.Value.LongValueSpecified);
