@@ -1,21 +1,27 @@
 import React, { Component } from 'react';
-import { Route } from 'react-router';
 import { Layout } from './components/Layout';
-import { Home } from './components/Home';
-import { FetchData } from './components/FetchData';
-import { Counter } from './components/Counter';
+import HomeToolbar from './components/HomeToolbar';
+import background from './images/background.png';
+//import { FetchData } from './components/FetchData';
+//import { Counter } from './components/Counter';
 
 import './custom.css'
+//import HomeToolbar from './components/HomeToolbar';
 
 export default class App extends Component {
   static displayName = App.name;
 
   render () {
     return (
-      <Layout>
-        <Route exact path='/' component={Home} />
-        <Route path='/counter' component={Counter} />
-        <Route path='/fetch-data' component={FetchData} />
+        <Layout>
+            <div className="mainDiv">
+                <HomeToolbar />
+                {/*<Route path='/counter' component={Counter} />
+                <Route path='/fetch-data' component={FetchData} />*/}
+                <div className="backgroundDiv">
+                    <img className="background" src={background} alt="Background" />
+                </div>
+            </div>
       </Layout>
     );
   }
