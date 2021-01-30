@@ -1,9 +1,11 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, {useState, useEffect, useRef} from 'react'
 import navBackground from '../images/navBackground.png';
 import { Button, Popover, PopoverHeader, PopoverBody } from "reactstrap";
 import { CircularProgressbar } from 'react-circular-progressbar';
 
 function PopoverItem() {
+    
     const [droneStatus, setDroneStatus] = useState({ percentage: 60, alt: "0", droneTextClicked: false })
     const [popoverOpen, setPopoverOpen] = useState(false)
     const intervalRef = useRef()
@@ -26,8 +28,9 @@ function PopoverItem() {
         if(popoverOpen){
             intervalRef.current = setInterval(fetchAlt,1000)
             setDroneStatus({...droneStatus, droneTextClicked: true})
+            
         }
-  
+        //console.log("popover")
         return () => {
             clearInterval(intervalRef.current)
             setDroneStatus({...droneStatus, droneTextClicked: false})
@@ -53,18 +56,17 @@ function PopoverItem() {
         }   
     }
 
-    
-
     return (
         <span>
-            <Button
+            
+            <button
                 className="droneData-btn"
                 id="Popover"
                 type="button"
                 onClick={handleAltInterval}
             >
                 Drone
-            </Button>
+            </button>
             <Popover
                 placement="bottom"
                 isOpen={popoverOpen}
@@ -86,6 +88,7 @@ function PopoverItem() {
             </Popover>
             </span>
     )
+    
 }
 
 export default PopoverItem

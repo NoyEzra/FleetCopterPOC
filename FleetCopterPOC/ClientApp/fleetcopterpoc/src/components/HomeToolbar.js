@@ -1,21 +1,31 @@
-import React from 'react'
+import React , {useState} from 'react'
 import axios from 'axios'
 import logo from '../images/logo1.png';
 import PopoverItem from './PopoverItem'
 
+
 function HomeToolbar() {
 
-
-    /*const handleFlyByClick = () =>{
+    const [playerStatus,SetPlayerStatus] = useState(false)
+    const handleFlyByClick = () => {
         axios.get('Ugcs/executeMission')
-        console.log("SUCCESS");
+            .then(res => {
+                console.log(res)
+                if(res.data.Answer)
+                    SetPlayerStatus(true)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
+
+    /*
+    const handleFlyByClick = async () => {
+        const response = await fetch('Ugcs/executeMission')
+        console.log("SUCCESS")
+        console.log(response)
     }
     */
-    const handleFlyByClick = async () => {
-    const response = await fetch('Ugcs/executeMission')
-    console.log("SUCCESS")
-    }
-
 
     return (
         <div className="buttonPanel">

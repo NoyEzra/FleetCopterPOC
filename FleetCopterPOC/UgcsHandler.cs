@@ -334,35 +334,43 @@ namespace FleetCopterPOC
             notificationListener.AddSubscription(stTelemetry);
         }
 
-        public void handleSimulationMission(String missionPath)
+        public bool handleSimulationMission(String missionPath)
         {
+            try
+            {
+                Mission mission = importMission(missionPath, clientId, messageExecutor);
+                Mission missionFromUcs = getMissionFromServer(mission, clientId, messageExecutor);
 
-            Mission mission = importMission(missionPath, clientId, messageExecutor);
-            Mission missionFromUcs = getMissionFromServer(mission, clientId, messageExecutor);
+                Route route1 = missionFromUcs.Routes[0];
+                Route route2 = missionFromUcs.Routes[1];
+                Route route3 = missionFromUcs.Routes[2];
 
-            Route route1 = missionFromUcs.Routes[0];
-            Route route2 = missionFromUcs.Routes[1];
-            Route route3 = missionFromUcs.Routes[2];
-
-            Route chosenRoute = route2;
+                Route chosenRoute = route2;
 
 
-            //add vehicle prfile and mission to route
-            Vehicle requestedVehicle = getRequestedVehicle(2, clientId, messageExecutor);
-            vehicleNotificationSubscription(requestedVehicle);
-            vehicleCommandSubscription(requestedVehicle);
-            logSubscription();
-            telemetrySubscription();
+                //add vehicle prfile and mission to route
+                Vehicle requestedVehicle = getRequestedVehicle(2, clientId, messageExecutor);
+                vehicleNotificationSubscription(requestedVehicle);
+                vehicleCommandSubscription(requestedVehicle);
+                logSubscription();
+                telemetrySubscription();
 
-            chosenRoute.VehicleProfile = requestedVehicle.Profile;
-            chosenRoute.Mission = mission;
+                chosenRoute.VehicleProfile = requestedVehicle.Profile;
+                chosenRoute.Mission = mission;
 
-            saveRouteToServer(chosenRoute, clientId, messageExecutor);
-            sendCommandToVehicle(requestedVehicle, "disarm", clientId, messageExecutor);
-            chosenRoute.ProcessedRoute = processRoute(chosenRoute, clientId, messageExecutor);
-            uplaodRouteToVehice(chosenRoute, requestedVehicle, clientId, messageExecutor);
-            sendCommandToVehicle(requestedVehicle, "arm", clientId, messageExecutor);
-            sendCommandToVehicle(requestedVehicle, "auto", clientId, messageExecutor);
+                saveRouteToServer(chosenRoute, clientId, messageExecutor);
+                sendCommandToVehicle(requestedVehicle, "disarm", clientId, messageExecutor);
+                chosenRoute.ProcessedRoute = processRoute(chosenRoute, clientId, messageExecutor);
+                uplaodRouteToVehice(chosenRoute, requestedVehicle, clientId, messageExecutor);
+                sendCommandToVehicle(requestedVehicle, "arm", clientId, messageExecutor);
+                sendCommandToVehicle(requestedVehicle, "auto", clientId, messageExecutor);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
 
         public double getVehicleAlt(int vehicleId)

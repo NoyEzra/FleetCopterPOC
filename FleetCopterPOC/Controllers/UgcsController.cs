@@ -12,13 +12,16 @@ namespace FleetCopterPOC.Controllers
         UgcsHandler ugcsHandler { get; set; }
         public UgcsController()
         {
-            ugcsHandler = new UgcsHandler();
+            //ugcsHandler = new UgcsHandler();
         }
 
-
-        public void executeMission()
+        [HttpGet]
+        public String executeMission()
         {
-            this.ugcsHandler.handleSimulationMission("Demo mission.json");
+            if (this.ugcsHandler.handleSimulationMission("Demo mission.json"))
+                return "{\"Answer\": true}";
+            return "{\"Answer\": false}";
+
         }
 
         public String vehicleAlt()

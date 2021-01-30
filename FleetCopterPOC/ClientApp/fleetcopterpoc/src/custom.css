@@ -49,7 +49,7 @@ body {
 
         .mainDiv .buttonPanel .logo {
             width: 200px;
-            hight: 50px;
+            height: 50px;
             margin-right: 20px;
             margin-left: 40px;
         }
@@ -66,8 +66,9 @@ body {
             font-family: Georgia;
             color: white;
         }
-
-        .mainDiv .buttonPanel .droneData-btn {
+        
+        
+        .mainDiv .buttonPanel .droneData-btn{
             border-radius: 10px;
             background-color: #004466;
             box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
@@ -78,7 +79,10 @@ body {
             font-size: 12px;
             text-align: center;
             font-family: Georgia;
+            color: white
         }
+
+
 
     .mainDiv .backgroundDiv{
         position: center;
