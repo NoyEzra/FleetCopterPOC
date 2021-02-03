@@ -12,7 +12,7 @@ namespace FleetCopterPOC.Controllers
         UgcsHandler ugcsHandler { get; set; }
         public UgcsController()
         {
-            //ugcsHandler = new UgcsHandler();
+            ugcsHandler = new UgcsHandler();
         }
 
         [HttpGet]

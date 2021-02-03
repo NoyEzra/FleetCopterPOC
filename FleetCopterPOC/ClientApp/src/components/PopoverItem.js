@@ -1,12 +1,14 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect, useRef, Text} from 'react'
 import navBackground from '../images/navBackground.png';
-import { Button, Popover, PopoverHeader, PopoverBody } from "reactstrap";
-import { CircularProgressbar } from 'react-circular-progressbar';
+import { Button, Popover, PopoverHeader, PopoverBody} from "reactstrap";
+import { CircularProgressbar, buildStyles} from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+
 
 function PopoverItem() {
     
-    const [droneStatus, setDroneStatus] = useState({percentage: 60, alt: "0", droneTextClicked: false })
+    const [droneStatus, setDroneStatus] = useState({status: "airborne", percentage: 60, alt: "0", droneTextClicked: false })
     const [popoverOpen, setPopoverOpen] = useState(false)
     const intervalRef = useRef()
     const toggle = () => setPopoverOpen(!popoverOpen)
@@ -73,18 +75,38 @@ function PopoverItem() {
                 target={"Popover"}
                 toggle={toggle}
             >
+            <div style={{display:'flex',flexDirection:'row'}}>
                 <PopoverBody style={{ display: 'flex', 
                                     flexDirection: 'column', 
                                     textAlign: 'center', 
                                     backgroundImage: 'url(' + navBackground + ')', 
                                     backgroundSize: 'cover', 
                                     color: 'white' }}>
-                    <b>Drone1:</b>
-                    <text>status:</text>
-                    <text>altitude:  {`${droneStatus.alt}`}</text>
-                    <text>battery:  {`${droneStatus.percentage}%`}</text>
-                    <CircularProgressbar value={60} text={`${60}% battery`} style={{ strokeLinecap: 'round', textSize: '16px', textColor: 'white', trailColor: 'white',}} />
+                    <b style={{marginBottom:"10px"}}> Drone 1:</b>
+                    <div style={{textAlign:"left", marginBottom:"10px", display:'flex',flexDirection:'column'}}>
+                        <text>status: {`${droneStatus.status}`}</text>
+                        <text>altitude: {`${droneStatus.alt}`}</text>
+                    </div>
+                    <div style={{ width: 80, height: 80 }}>
+                        <CircularProgressbar value={60} text={`${60}% battery`} styles={buildStyles({strokeLinecap: 'butt', textSize: '14px', trailColor: '#a6a6a6',pathColor: '#4db8ff', textColor: '#ffffff'})} />
+                    </div>
                 </PopoverBody>
+                <PopoverBody style={{ display: 'flex', 
+                                    flexDirection: 'column', 
+                                    textAlign: 'center', 
+                                    backgroundImage: 'url(' + navBackground + ')', 
+                                    backgroundSize: 'cover', 
+                                    color: 'white' }}>
+                    <b style={{marginBottom:"10px"}}>Drone 2:</b>
+                    <div style={{textAlign:"left", marginBottom:"10px", display:'flex',flexDirection:'column'}}>
+                        <text>status:</text>
+                        <text>altitude: {`${droneStatus.alt}`}</text>
+                    </div>
+                    <div style={{ width: 80, height: 80 }}>
+                        <CircularProgressbar value={60} text={`${60}% battery`} styles={buildStyles({strokeLinecap: 'butt', textSize: '14px', trailColor: '#a6a6a6', pathColor: '#4db8ff', textColor: '#ffffff'})} />
+                    </div>
+                </PopoverBody>
+            </div>
             </Popover>
             </span>
     )

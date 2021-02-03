@@ -7,7 +7,11 @@ import PopoverItem from './PopoverItem'
 function HomeToolbar() {
 
     const [playerStatus,SetPlayerStatus] = useState(false)
+    const [FlyByColor,SetFlyByColor] = useState("#ffffff")
+    
+
     const handleFlyByClick = () => {
+        SetFlyByColor("#ff8533");
         axios.get('Ugcs/executeMission')
             .then(res => {
                 console.log(res)
@@ -17,6 +21,7 @@ function HomeToolbar() {
             .catch(err => {
                 console.log(err)
             })
+        SetFlyByColor("#ffffff");
     }
 
     /*
@@ -32,7 +37,7 @@ function HomeToolbar() {
             <img className="logo" src={logo} alt="Logo" />
             <button className="buttonPanel-btn">Fly To Point</button>
             <button className="buttonPanel-btn">Beauty Shot</button>
-            <button className="buttonPanel-btn" onClick={handleFlyByClick}>FlyBy</button>
+            <button id="buttonPanel-btn" className="buttonPanel-btn" onClick={handleFlyByClick} style={{color:FlyByColor}}>FlyBy</button>
             <button className="buttonPanel-btn">Critical Holes</button>
             <button className="buttonPanel-btn">Perim Sweep</button>
             <PopoverItem />

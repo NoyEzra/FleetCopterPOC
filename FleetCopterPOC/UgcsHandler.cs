@@ -323,11 +323,8 @@ namespace FleetCopterPOC
                         {
                             //I added this part - in case the altitudeAGL value changed - update the relevant vehicl's telemetry
                             this.vehiclesTelemetry[notification.Event.TelemetryEvent.Vehicle.Id].altitudeAgl = (double)getTelemetryValue(t.Value);
-                            System.Console.WriteLine(getTelemetryValue(t.Value));
-                            System.Console.WriteLine(t.Value.LongValueSpecified);
-                            System.Console.WriteLine(t.Value.DoubleValueSpecified);
                         }
-                        //System.Console.WriteLine("!!!Vehicle id: {0} Code: {1} Semantic {2} Subsystem {3} Value {4} ToString {5}", notification.Event.TelemetryEvent.Vehicle.Id, t.TelemetryField.Code, t.TelemetryField.Semantic, t.TelemetryField.Subsystem, getTelemetryValue(t.Value), t.TelemetryField.ToString());
+                        System.Console.WriteLine("!!!Vehicle id: {0} Code: {1} Semantic {2} Subsystem {3} Value {4} ToString {5}", notification.Event.TelemetryEvent.Vehicle.Id, t.TelemetryField.Code, t.TelemetryField.Semantic, t.TelemetryField.Subsystem, getTelemetryValue(t.Value), t.TelemetryField.ToString());
                     }
                 }
             ), telemetrySubscriptionWrapper);
