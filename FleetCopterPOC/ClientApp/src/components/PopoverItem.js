@@ -6,7 +6,7 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 
 function PopoverItem() {
     
-    const [droneStatus, setDroneStatus] = useState({ percentage: 60, alt: "0", droneTextClicked: false })
+    const [droneStatus, setDroneStatus] = useState({percentage: 60, alt: "0", droneTextClicked: false })
     const [popoverOpen, setPopoverOpen] = useState(false)
     const intervalRef = useRef()
     const toggle = () => setPopoverOpen(!popoverOpen)
