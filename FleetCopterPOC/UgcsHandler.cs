@@ -12,14 +12,35 @@ namespace FleetCopterPOC
 {
     public class UgcsHandler
     {
+        private static UgcsHandler instance = null;
+        private static readonly object padlock = new object();
+
         public int clientId { get; private set; }
         private MessageExecutor messageExecutor { get; set; }
         private NotificationListener notificationListener { get; set; }
         private Dictionary<int, VehicleTelemetry> vehiclesTelemetry { get; set; }
-        public UgcsHandler()
+        private Dictionary<int, Vehicle> vehicles { get; set; }
+        private UgcsHandler()
         {
             startConnection(); 
         }
+
+        public static UgcsHandler Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new UgcsHandler();
+                    }
+                    return instance;
+                }
+            }
+        }
+
+
 
         public void startConnection()
         {
@@ -87,6 +108,8 @@ namespace FleetCopterPOC
 
                 Vehicle vehicle1 = task.Value.Objects.FirstOrDefault().Vehicle;
             }
+
+            vehicles = new Dictionary<int, Vehicle>();
         }
 
         private Mission importMission(string filePath, int clientId, MessageExecutor messageExecutor)
@@ -342,7 +365,7 @@ namespace FleetCopterPOC
                 Route route2 = missionFromUcs.Routes[1];
                 Route route3 = missionFromUcs.Routes[2];
 
-                Route chosenRoute = route2;
+                Route chosenRoute = route1;
 
 
                 //add vehicle prfile and mission to route
@@ -351,6 +374,7 @@ namespace FleetCopterPOC
                 vehicleCommandSubscription(requestedVehicle);
                 logSubscription();
                 telemetrySubscription();
+                this.vehicles.Add(requestedVehicle.Id, requestedVehicle);
 
                 chosenRoute.VehicleProfile = requestedVehicle.Profile;
                 chosenRoute.Mission = mission;
@@ -372,7 +396,24 @@ namespace FleetCopterPOC
 
         public double getVehicleAlt(int vehicleId)
         {
-            return this.vehiclesTelemetry[vehicleId].altitudeAgl;
+            return (double)System.Math.Round(this.vehiclesTelemetry[vehicleId].altitudeAgl, 2);
+        }
+
+        public int getBatteryLevel(int vehicleId)
+        {
+            Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
+            int ans = 0;
+            foreach(VehicleParameter vp in requestedVehicle.Profile.Parameters)
+            {
+                Console.WriteLine(vp.Type);
+                Console.WriteLine(vp.Value);
+            }
+            if(vehicleId == 1)
+            {
+                return 10;
+            }
+
+            return 80;
         }
     }
 }

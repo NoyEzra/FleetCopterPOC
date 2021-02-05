@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +14,13 @@ namespace FleetCopterPOC.Controllers
         UgcsHandler ugcsHandler { get; set; }
         public UgcsController()
         {
-            ugcsHandler = new UgcsHandler();
+            //ugcsHandler = new UgcsHandler();
         }
 
         [HttpGet]
         public String executeMission()
         {
-            if (this.ugcsHandler.handleSimulationMission("Demo mission.json"))
+            if (UgcsHandler.Instance.handleSimulationMission("Demo mission.json"))
                 return "{\"Answer\": true}";
             return "{\"Answer\": false}";
 
@@ -26,9 +28,18 @@ namespace FleetCopterPOC.Controllers
 
         public String vehicleAlt()
         {
-            Double vehicleAlt = this.ugcsHandler.getVehicleAlt(2);
-            return vehicleAlt.ToString();
+            Double vehicle1Alt = UgcsHandler.Instance.getVehicleAlt(1);
+            Double vehicle2Alt = UgcsHandler.Instance.getVehicleAlt(2);
+            int drone1battery = UgcsHandler.Instance.getBatteryLevel(1);
+            int drone2battery = UgcsHandler.Instance.getBatteryLevel(2);
+            JProperty drone1Alt = new JProperty("drone1Alt", vehicle1Alt.ToString());
+            JProperty drone2Alt = new JProperty("drone2Alt", vehicle2Alt.ToString());
+            JProperty drone1Bat = new JProperty("drone1Bat", drone1battery);
+            JProperty drone2Bat = new JProperty("drone2Bat", drone2battery);
+            JObject ans = new JObject(drone1Alt, drone2Alt, drone1Bat, drone2Bat);
+            return ans.ToString();
         }
+
 
 
         // GET: UgcsController/Details/5
