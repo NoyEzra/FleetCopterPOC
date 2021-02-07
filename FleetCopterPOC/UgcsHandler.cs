@@ -20,6 +20,9 @@ namespace FleetCopterPOC
         private NotificationListener notificationListener { get; set; }
         private Dictionary<int, VehicleTelemetry> vehiclesTelemetry { get; set; }
         private Dictionary<int, Vehicle> vehicles { get; set; }
+        private int EMU_101_id { get; set; }
+        private int EMU_102_id { get; set; }
+
         private UgcsHandler()
         {
             startConnection(); 
@@ -100,6 +103,14 @@ namespace FleetCopterPOC
             {
                 foreach (var v in list.Objects)
                 {
+                    if(v.Vehicle.Name == "EMU-101")
+                    {
+                        this.EMU_101_id = v.Vehicle.Id;
+                    }
+                    else if(v.Vehicle.Name == "EMU-102")
+                    {
+                        this.EMU_102_id = v.Vehicle.Id;
+                    }
                     System.Console.WriteLine(string.Format("name: {0}; id: {1}; type: {2}",
                            v.Vehicle.Name, v.Vehicle.Id, v.Vehicle.Type.ToString()));
                     vehiclesList.Add(v.Vehicle);
@@ -342,7 +353,7 @@ namespace FleetCopterPOC
                 {
                     foreach (Telemetry t in notification.Event.TelemetryEvent.Telemetry)
                     {
-                        if (t.TelemetryField.Code == "altitude_agl")
+                        if ((t.TelemetryField.Code == "altitude_agl") && (t.Value != null))
                         {
                             //I added this part - in case the altitudeAGL value changed - update the relevant vehicl's telemetry
                             this.vehiclesTelemetry[notification.Event.TelemetryEvent.Vehicle.Id].altitudeAgl = (double)getTelemetryValue(t.Value);
@@ -369,7 +380,7 @@ namespace FleetCopterPOC
 
 
                 //add vehicle prfile and mission to route
-                Vehicle requestedVehicle = getRequestedVehicle(2, clientId, messageExecutor);
+                Vehicle requestedVehicle = getRequestedVehicle(this.EMU_101_id, clientId, messageExecutor);
                 vehicleNotificationSubscription(requestedVehicle);
                 vehicleCommandSubscription(requestedVehicle);
                 logSubscription();
