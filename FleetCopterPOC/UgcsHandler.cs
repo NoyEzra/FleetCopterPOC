@@ -97,6 +97,7 @@ namespace FleetCopterPOC
             task.Wait();
 
             this.vehiclesTelemetry = new Dictionary<int, VehicleTelemetry>();
+            this.vehicles = new Dictionary<int, Vehicle>();
             List<Vehicle> vehiclesList = new List<Vehicle>();
             var list = task.Value;
             if (list != null)
@@ -114,13 +115,14 @@ namespace FleetCopterPOC
                     System.Console.WriteLine(string.Format("name: {0}; id: {1}; type: {2}",
                            v.Vehicle.Name, v.Vehicle.Id, v.Vehicle.Type.ToString()));
                     vehiclesList.Add(v.Vehicle);
+                    this.vehicles.Add(v.Vehicle.Id, v.Vehicle);
                     vehiclesTelemetry.Add(v.Vehicle.Id, new VehicleTelemetry(v.Vehicle.Id));
                 }
 
-                Vehicle vehicle1 = task.Value.Objects.FirstOrDefault().Vehicle;
+                telemetrySubscription();
             }
 
-            vehicles = new Dictionary<int, Vehicle>();
+            
         }
 
         private Mission importMission(string filePath, int clientId, MessageExecutor messageExecutor)
@@ -384,8 +386,8 @@ namespace FleetCopterPOC
                 vehicleNotificationSubscription(requestedVehicle);
                 vehicleCommandSubscription(requestedVehicle);
                 logSubscription();
-                telemetrySubscription();
-                this.vehicles.Add(requestedVehicle.Id, requestedVehicle);
+                //telemetrySubscription();
+                //this.vehicles.Add(requestedVehicle.Id, requestedVehicle);
 
                 chosenRoute.VehicleProfile = requestedVehicle.Profile;
                 chosenRoute.Mission = mission;
@@ -412,7 +414,22 @@ namespace FleetCopterPOC
 
         public int getBatteryLevel(int vehicleId)
         {
-            Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
+            Vehicle requestedVehicle = this.vehicles[3];
+            // Get Telemetry for vehicle
+            DateTime utcTime = DateTime.Now.ToUniversalTime();
+            DateTime posixEpoch = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            TimeSpan span = utcTime - posixEpoch;
+            var beginningMilliseconds = (long)span.TotalMilliseconds;
+            MessageFuture<GetTelemetryResponse> telemetryFuture = messageExecutor.Submit<GetTelemetryResponse>(new GetTelemetryRequest
+            {
+                ClientId = clientId,
+                Vehicle = requestedVehicle,
+                Limit = 0,
+                LimitSpecified = true,
+                ToTimeSpecified = false
+            });
+            telemetryFuture.Wait();
+            GetTelemetryResponse telemetryResp = telemetryFuture.Value;
             int ans = 0;
             foreach(VehicleParameter vp in requestedVehicle.Profile.Parameters)
             {
