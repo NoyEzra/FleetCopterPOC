@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading.Tasks;
 using UGCS.Sdk.Protocol;
 using UGCS.Sdk.Protocol.Encoding;
 using UGCS.Sdk.Tasks;
@@ -334,8 +333,10 @@ namespace FleetCopterPOC
             notificationListener.AddSubscription(stTelemetry);
         }
 
-        public bool handleSimulationMission(String missionPath)
+        public bool handleSimulationMission(String missionPath, int vehicleId)
         {
+            if (!checkVehicleId(vehicleId))
+                return false; //Wrong vehicleId
             try
             {
                 Mission mission = importMission(missionPath, clientId, messageExecutor);
@@ -349,7 +350,7 @@ namespace FleetCopterPOC
 
 
                 //add vehicle prfile and mission to route
-                Vehicle requestedVehicle = getRequestedVehicle(2, clientId, messageExecutor);
+                Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
                 vehicleNotificationSubscription(requestedVehicle);
                 vehicleCommandSubscription(requestedVehicle);
                 logSubscription();
@@ -377,5 +378,84 @@ namespace FleetCopterPOC
         {
             return this.vehiclesTelemetry[vehicleId].altitudeAgl;
         }
+
+        public bool pauseMission(int clientId, int vehicleId)
+        {
+            //Return Home Code: return_to_home
+            //Hold Code: mission_pause
+            //Continue Code: mission_resume
+            try
+            {
+                Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
+                sendCommandToVehicle(requestedVehicle, "mission_pause", clientId, messageExecutor);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
+
+        public bool resumeMission(int clientId, int vehicleId)
+        {
+            //Return Home Code: return_to_home
+            //Hold Code: mission_pause
+            //Continue Code: mission_resume
+            try
+            {
+                Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
+                sendCommandToVehicle(requestedVehicle, "mission_resume", clientId, messageExecutor);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
+        public bool stopMission(int clientId, int vehicleId)
+        {
+            //Return Home Code: return_to_home
+            //Hold Code: mission_pause
+            //Continue Code: mission_resume
+            try
+            {
+                Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
+                sendCommandToVehicle(requestedVehicle, "return_to_home", clientId, messageExecutor);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
+        private bool checkVehicleId(int vehicleId)
+        {
+            foreach(var v in this.vehiclesTelemetry)
+            {
+                if(v.Key == vehicleId)
+                    return true;
+            }
+            return false;
+        }
+
+        public int[] getVeichledId()
+        {
+            int[] arr = new int[this.vehiclesTelemetry.Count];
+            int i = 0;
+            foreach (var v in this.vehiclesTelemetry)
+            {
+                arr[i] = v.Key;
+                i++;
+            }
+            return arr;
+        }
+
+       
     }
 }

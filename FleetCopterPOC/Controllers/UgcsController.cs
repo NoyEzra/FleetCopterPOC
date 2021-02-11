@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UGCS.Sdk.Protocol;
+using UGCS.Sdk.Protocol.Encoding;
+using UGCS.Sdk.Tasks;
 
 namespace FleetCopterPOC.Controllers
 {
@@ -12,14 +15,50 @@ namespace FleetCopterPOC.Controllers
         UgcsHandler ugcsHandler { get; set; }
         public UgcsController()
         {
-            //ugcsHandler = new UgcsHandler();
+            ugcsHandler = new UgcsHandler();
         }
 
         [HttpGet]
-        public String executeMission()
+        public string executeMission()
         {
-            if (this.ugcsHandler.handleSimulationMission("Demo mission.json"))
-                return "{\"Answer\": true}";
+            int vehicleId = 2;
+            if (this.ugcsHandler.handleSimulationMission("Demo mission.json", vehicleId))
+            {
+                int[] viechles = this.ugcsHandler.getVeichledId();
+                Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                c.droneDataArr[0].isOnFlight = true;
+                return c.jsonString();
+            }
+            return "{\"Answer\": false}";
+
+        }
+
+        [HttpGet]
+        public string pauseMission()
+        {
+            int vehicleId = 2;
+            if (this.ugcsHandler.pauseMission(clientId, vehicleId))
+            {
+                int[] viechles = this.ugcsHandler.getVeichledId();
+                Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                c.droneDataArr[0].isOnFlight = true;
+                return c.jsonString();
+            }
+            return "{\"Answer\": false}";
+
+        }
+
+        [HttpGet]
+        public string resumeMission()
+        {
+            int vehicleId = 2;
+            if (this.ugcsHandler.resumeMission(clientId, vehicleId))
+            {
+                int[] viechles = this.ugcsHandler.getVeichledId();
+                Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                c.droneDataArr[0].isOnFlight = true;
+                return c.jsonString();
+            }
             return "{\"Answer\": false}";
 
         }
