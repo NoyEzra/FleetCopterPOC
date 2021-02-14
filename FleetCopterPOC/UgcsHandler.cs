@@ -333,7 +333,7 @@ namespace FleetCopterPOC
             notificationListener.AddSubscription(stTelemetry);
         }
 
-        public bool handleSimulationMission(String missionPath, int vehicleId)
+        public bool handleSimulationMission(String missionPath, int vehicleId, string action)
         {
             if (!checkVehicleId(vehicleId))
                 return false; //Wrong vehicleId
@@ -342,12 +342,23 @@ namespace FleetCopterPOC
                 Mission mission = importMission(missionPath, clientId, messageExecutor);
                 Mission missionFromUcs = getMissionFromServer(mission, clientId, messageExecutor);
 
-                Route route1 = missionFromUcs.Routes[0];
-                Route route2 = missionFromUcs.Routes[1];
-                Route route3 = missionFromUcs.Routes[2];
+                
+                List<Route> routes = missionFromUcs.Routes;
+                Route chosenRoute = null;
+                foreach (Route r in routes)
+                {
+                    if(r.Name == action)
+                    {
+                        chosenRoute = r;
+                        break;
+                    }
 
-                Route chosenRoute = route2;
+                }
 
+                if(chosenRoute == null)
+                {
+                    return false;
+                }
 
                 //add vehicle prfile and mission to route
                 Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);

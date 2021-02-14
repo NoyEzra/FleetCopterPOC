@@ -5,7 +5,7 @@ import { sendDroneFlyBy } from '../redux';
 import PopoverItem from './PopoverItem'
 
 
-function HomeToolbar( { firstDroneData, sendDroneFlyBy }) {
+function HomeToolbar({ firstDroneData, sendDroneFlyBy, sendDroneMission }) {
 
     const [playerStatus,SetPlayerStatus] = useState(false)
 
@@ -16,6 +16,33 @@ function HomeToolbar( { firstDroneData, sendDroneFlyBy }) {
         firstDroneData.error ?
         (console.log(firstDroneData.error)) :
         SetPlayerStatus(firstDroneData.droneData && firstDroneData.droneData.droneDataArr[0] && firstDroneData.droneData.droneDataArr[0].isOnFlight)
+    }
+
+    const handleBeautyShotClick = () => {
+        sendDroneMission('BeautyShot')
+        firstDroneData.loading ?
+            (console.log('loading BeautyShot')) :
+            firstDroneData.error ?
+                (console.log(firstDroneData.error)) :
+                SetPlayerStatus(firstDroneData.droneData && firstDroneData.droneData.droneDataArr[0] && firstDroneData.droneData.droneDataArr[0].isOnFlight)
+    }
+
+    const handleCriticalHoles = () => {
+        sendDroneMission('CriticalHoles')
+        firstDroneData.loading ?
+            (console.log('loading CriticalHoles')) :
+            firstDroneData.error ?
+                (console.log(firstDroneData.error)) :
+                SetPlayerStatus(firstDroneData.droneData && firstDroneData.droneData.droneDataArr[0] && firstDroneData.droneData.droneDataArr[0].isOnFlight)
+    }
+
+    const handlePerimSweapClick = () => {
+        sendDroneMission('PerimSweap')
+        firstDroneData.loading ?
+            (console.log('loading PerimSweap')) :
+            firstDroneData.error ?
+                (console.log(firstDroneData.error)) :
+                SetPlayerStatus(firstDroneData.droneData && firstDroneData.droneData.droneDataArr[0] && firstDroneData.droneData.droneDataArr[0].isOnFlight)
     }
 
     /*
@@ -30,10 +57,10 @@ function HomeToolbar( { firstDroneData, sendDroneFlyBy }) {
         <div className="buttonPanel">
             <img className="logo" src={logo} alt="Logo" />
             <button className="buttonPanel-btn">Fly To Point</button>
-            <button className="buttonPanel-btn">Beauty Shot</button>
+            <button className="buttonPanel-btn" onClick={handleBeautyShotClick}>Beauty Shot</button>
             <button className="buttonPanel-btn" onClick={handleFlyByClick}>FlyBy</button>
-            <button className="buttonPanel-btn">Critical Holes</button>
-            <button className="buttonPanel-btn">Perim Sweep</button>
+            <button className="buttonPanel-btn" onClick={handleCriticalHoles}>Critical Holes</button>
+            <button className="buttonPanel-btn" onClicl={handlePerimSweapClick}>Perim Sweep</button>
             <PopoverItem />
         </div>
     )

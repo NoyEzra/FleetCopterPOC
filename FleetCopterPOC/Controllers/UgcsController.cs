@@ -19,10 +19,10 @@ namespace FleetCopterPOC.Controllers
         }
 
         [HttpGet]
-        public string executeMission()
+        public string executeMission(string action)
         {
             int vehicleId = 2;
-            if (this.ugcsHandler.handleSimulationMission("Demo mission.json", vehicleId))
+            if (this.ugcsHandler.handleSimulationMission("Demo mission.json", vehicleId, action))
             {
                 int[] viechles = this.ugcsHandler.getVeichledId();
                 Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
@@ -32,6 +32,10 @@ namespace FleetCopterPOC.Controllers
             return "{\"Answer\": false}";
 
         }
+
+
+
+
 
         [HttpGet]
         public string pauseMission()

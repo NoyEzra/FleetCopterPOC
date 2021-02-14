@@ -27,7 +27,7 @@ export const sendDroneError = error => {
 export const sendDroneFlyBy = () => {
     return (dispatch) => {
         dispatch(sendDroneRequest)
-        axios.get('Ugcs/executeMission')
+        axios.get('Ugcs/executeMission/FlyBy')
             .then(response => {
                 const droneData = response.data
                 console.log(droneData)
@@ -40,6 +40,24 @@ export const sendDroneFlyBy = () => {
             })
     }
 }
+
+export const sendDroneMission = (mission) => {
+    return (dispatch) => {
+        var requestUrl = 'Ugcs/executeMission/' + mission
+        axios.get(requestUrl)
+            .then(response => {
+                const droneData = response.data
+                console.log(droneData)
+                dispatch(sendDroneSuccess(droneData))
+            })
+            .catch(error => {
+                const errMsg = error.message
+                console.log(errMsg)
+                dispatch(sendDroneError(errMsg))
+            })
+    }
+}
+
 
 export const sendDronePause = () => {
     return (dispatch) => {
