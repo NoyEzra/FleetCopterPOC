@@ -41,10 +41,10 @@ export const sendDroneFlyBy = () => {
     }
 }
 
-export const sendDronePause = () => {
+export const sendDronePause = (clientId,vehicleId) => {
     return (dispatch) => {
         dispatch(sendDroneRequest)
-        axios.get('Ugcs/pauseMission')
+        axios.get(`Ugcs/pauseMission?clientId=${clientId}&vehicleId=${vehicleId}`)
             .then(response => {
                 const droneData = response.data
                 console.log(droneData)
@@ -58,10 +58,10 @@ export const sendDronePause = () => {
     }
 }
 
-export const sendDroneResume = () => {
+export const sendDroneResume = (clientId,vehicleId) => {
     return (dispatch) => {
         dispatch(sendDroneRequest)
-        axios.get('Ugcs/resumeMission')
+        axios.get(`Ugcs/resumeMission?clientId=${clientId}&vehicleId=${vehicleId}`)
             .then(response => {
                 const droneData = response.data
                 console.log(droneData)
@@ -75,6 +75,19 @@ export const sendDroneResume = () => {
     }
 }
 
-export const sendDroneReturnHome = () => {
-    
+export const sendDroneReturnHome = (clientId,vehicleId) => {
+    return (dispatch) => {
+        dispatch(sendDroneRequest)
+        axios.get(`Ugcs/returnHomeMission?clientId=${clientId}&vehicleId=${vehicleId}`)
+            .then(response => {
+                const droneData = response.data
+                console.log(droneData)
+                dispatch(sendDroneSuccess(droneData))
+            })
+            .catch(error => {
+                const errMsg = error.message
+                console.log(errMsg)
+                dispatch(sendDroneError(errMsg))
+            })
+    }
 }

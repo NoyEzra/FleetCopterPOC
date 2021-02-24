@@ -15,33 +15,36 @@ namespace FleetCopterPOC.Controllers
         UgcsHandler ugcsHandler { get; set; }
         public UgcsController()
         {
-            ugcsHandler = new UgcsHandler();
+            ugcsHandler = null;
         }
 
         [HttpGet]
         public string executeMission()
         {
+            if (this.ugcsHandler == null)
+                this.ugcsHandler = new UgcsHandler();
             int vehicleId = 2;
             if (this.ugcsHandler.handleSimulationMission("Demo mission.json", vehicleId))
             {
                 int[] viechles = this.ugcsHandler.getVeichledId();
                 Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                c.droneDataArr[0].isOnFlight = true;
+                c.droneDataArr[1].state = State.resumeState.ToString();
                 return c.jsonString();
             }
             return "{\"Answer\": false}";
 
         }
 
-        [HttpGet]
-        public string pauseMission()
+        [HttpGet]  //Ugcs/pauseMission?clientId=20474&vehicleId=2
+        public string pauseMission([FromQuery]int clientId, [FromQuery] int vehicleId=2)
         {
-            int vehicleId = 2;
+            if (this.ugcsHandler == null)
+                this.ugcsHandler = new UgcsHandler(clientId);
             if (this.ugcsHandler.pauseMission(clientId, vehicleId))
             {
                 int[] viechles = this.ugcsHandler.getVeichledId();
                 Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                c.droneDataArr[0].isOnFlight = true;
+                c.droneDataArr[1].state = State.pauseState.ToString();
                 return c.jsonString();
             }
             return "{\"Answer\": false}";
@@ -49,14 +52,31 @@ namespace FleetCopterPOC.Controllers
         }
 
         [HttpGet]
-        public string resumeMission()
+        public string resumeMission([FromQuery] int clientId, [FromQuery] int vehicleId = 2)
         {
-            int vehicleId = 2;
+            if (this.ugcsHandler == null)
+                this.ugcsHandler = new UgcsHandler(clientId);
             if (this.ugcsHandler.resumeMission(clientId, vehicleId))
             {
                 int[] viechles = this.ugcsHandler.getVeichledId();
                 Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                c.droneDataArr[0].isOnFlight = true;
+                c.droneDataArr[1].state = State.resumeState.ToString();
+                return c.jsonString();
+            }
+            return "{\"Answer\": false}";
+
+        }
+
+        [HttpGet]
+        public string returnHomeMission([FromQuery] int clientId, [FromQuery] int vehicleId = 2)
+        {
+            if (this.ugcsHandler == null)
+                this.ugcsHandler = new UgcsHandler(clientId);
+            if (this.ugcsHandler.returnHomeMission(clientId, vehicleId))
+            {
+                int[] viechles = this.ugcsHandler.getVeichledId();
+                Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                c.droneDataArr[1].state = State.stopState.ToString();
                 return c.jsonString();
             }
             return "{\"Answer\": false}";
