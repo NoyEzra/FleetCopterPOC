@@ -15,12 +15,12 @@ namespace FleetCopterPOC
         private MessageExecutor messageExecutor { get; set; }
         private NotificationListener notificationListener { get; set; }
         private Dictionary<int, VehicleTelemetry> vehiclesTelemetry { get; set; }
-        public UgcsHandler()
+        public UgcsHandler(int clientIdRequested = -1)
         {
-            startConnection(); 
+            startConnection(clientIdRequested); 
         }
 
-        public void startConnection()
+        public void startConnection(int clientIdRequested)
         {
             TcpClient tcpClient = new TcpClient();
             try
@@ -43,7 +43,7 @@ namespace FleetCopterPOC
             messageReceiver.AddListener(-1, notificationListener);
 
             AuthorizeHciRequest request = new AuthorizeHciRequest();
-            request.ClientId = -1;
+            request.ClientId = clientIdRequested;
             request.Locale = "en-US";
             var future = messageExecutor.Submit<AuthorizeHciResponse>(request);
             future.Wait();
@@ -427,7 +427,7 @@ namespace FleetCopterPOC
             }
         }
 
-        public bool stopMission(int clientId, int vehicleId)
+        public bool returnHomeMission(int clientId, int vehicleId)
         {
             //Return Home Code: return_to_home
             //Hold Code: mission_pause

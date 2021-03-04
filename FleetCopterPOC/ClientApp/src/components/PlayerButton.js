@@ -4,50 +4,54 @@ import 'mdbreact/dist/css/mdb.css';
 import React, { useState,useEffect } from "react";
 import { MDBBtn, MDBIcon } from "mdbreact";
 import { connect } from 'react-redux'
+import { sendDronePause, sendDroneResume, sendDroneReturnHome } from '../redux'
 
 function PlayerButton(props) {
     const [playerIcon,setPlayerIcon] = useState('play-circle')
     const [triggerResume,setTriggerResume] = useState(0)
     const [triggerPause,setTriggerPause] = useState(0)
 
-    const isOnFlight = (props.droneData &&
-                        props.droneData.droneDataArr && 
-                        props.droneData.droneDataArr[0] && 
-                        props.droneData.droneDataArr[0].isOnFlight)
+    const vehicleId = (props.droneData &&
+                       props.droneData.droneDataArr && 
+                       props.droneData.droneDataArr[1] && 
+                       props.droneData.droneDataArr[1].vehicleId)
 
-    useEffect( () => {
-      isOnFlight && playerIcon == 'play-circle' ? setPlayerIcon('pause') : setPlayerIcon('play-circle')
-    }, [isOnFlight])
+    const vehicleState = (props.droneData &&
+                          props.droneData.droneDataArr && 
+                          props.droneData.droneDataArr[1] && 
+                          props.droneData.droneDataArr[1].state)
 
+    const isOnFlight = ((vehicleState === 'pauseState') || (vehicleState === 'resumeState'))                     
+
+      //1)need to check and handle props.error?    !!!!!!!!!!!
+      //2)keep tracking drone while returns home, when it get home -> drone became disabled.
+      //   until then pause and resume should be available.
     useEffect(() => {
-      props.sendDroneResume()
-      return () => {
-        props.error ?
-          console.log(error) :
-          isOnFlight ?
-            setPlayerIcon('pause') :
-            setPlayerIcon('play-circle')
-      }
-    },[triggerResume])
+      if(vehicleState === 'pauseState') setPlayerIcon('play-circle')//pause button pressed => change to play button 
+      else if(vehicleState === 'resumeState') setPlayerIcon('pause')//play button pressed => change to pause button
+      else setPlayerIcon('play-circle')                             //stop button pressed => change to play button (disabled)
+    }, [vehicleState])
 
-    useEffect(() => {
-      props.sendDronePause()
-      return () => {
-        props.error ?
-          console.log(error) :
-          setPlayerIcon('play-circle')
-      }
-    },[triggerPause])
 
     const clickHandle = () => {
-      isOnFlight && playerIcon == 'play-circle' ? setTriggerResume(!triggerResume) : setTriggerResume(!triggerPause)
+      if(isOnFlight && playerIcon === 'play-circle')
+        //'play-circle' button pressed
+        props.sendDroneResume(props.droneData.clientId,vehicleId)
+          
+      else if(isOnFlight && playerIcon === 'pause')
+        //'pause' button pressed
+        props.sendDronePause(props.droneData.clientId,vehicleId)   
+    }
+
+    const stopClickHandle = () => {
+        props.sendDroneReturnHome(props.droneData.clientId,vehicleId) 
     }
     return (
       <div>
         {
           isOnFlight ?
           (<React.Fragment>
-            <MDBBtn tag="a" size="lg" color="grey" className="button" 
+            <MDBBtn tag="a" size="lg" color="grey" className="button" onClick={stopClickHandle}
              style={{"borderRadius":"50%","paddingLeft": "16px","paddingRight":"16px"}}>
               <MDBIcon icon="stop" size="4x"/>
             </MDBBtn>
@@ -74,15 +78,16 @@ function PlayerButton(props) {
 
 const mapStateToProps = state => {
   return {
+    loading: state.firstDrone.loading,
     droneData: state.firstDrone.droneData,
     error: state.firstDrone.error
   }
 }
 const mapDispatchToProps = dispatch => {
   return {
-      sendDronePause: () => dispatch(sendDronePause()),
-      sendDroneResume: () => dispatch(sendDroneResume())//,
-      //sendDroneReturnHome: () => dispatch(sendDroneReturnHome())
+      sendDronePause: (cId,vId) => dispatch(sendDronePause(cId,vId)),
+      sendDroneResume: (cId,vId) => dispatch(sendDroneResume(cId,vId)),
+      sendDroneReturnHome: (cId,vId) => dispatch(sendDroneReturnHome(cId,vId))
   }
 }
 
