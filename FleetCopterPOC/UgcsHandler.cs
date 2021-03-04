@@ -103,6 +103,15 @@ namespace FleetCopterPOC
 
             Client newClient = new Client(clientId, messageExecutor, notificationListener, vehiclesList);
             this.clients.Add(clientId, newClient);
+            logSubscription(clientId, messageExecutor, notificationListener);
+            telemetrySubscription(clientId, messageExecutor, notificationListener);
+
+            foreach (Vehicle v in vehiclesList)
+            {
+                vehicleNotificationSubscription(clientId, v, messageExecutor, notificationListener);
+                vehicleCommandSubscription(clientId, v, messageExecutor, notificationListener);
+            }
+
             return clientId;
         }
 
@@ -388,10 +397,7 @@ namespace FleetCopterPOC
 
                 //add vehicle prfile and mission to route
                 Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
-                vehicleNotificationSubscription(clientId, requestedVehicle, messageExecutor, notificationListener);
-                vehicleCommandSubscription(clientId, requestedVehicle, messageExecutor, notificationListener);
-                logSubscription(clientId, messageExecutor, notificationListener);
-                telemetrySubscription(clientId, messageExecutor, notificationListener);
+
 
                 chosenRoute.VehicleProfile = requestedVehicle.Profile;
                 chosenRoute.Mission = mission;

@@ -17,20 +17,41 @@ namespace FleetCopterPOC.Controllers
         UgcsHandler ugcsHandler { get; set; }
 
 
-        private string createSuccessResponse(string droneData)
+        private string createSuccessResponse(string droneData, string action)
         {
             JProperty status = new JProperty("status", "success");
             JProperty dd = new JProperty("droneData", droneData);
-            JObject ans = new JObject(status, dd);
+            JProperty act = new JProperty("action", action);
+            JObject ans = new JObject(status, dd, act);
             return ans.ToString();
         }
 
-        private string createErrorResponse(string errorMsg)
+        private string createErrorResponse(string errorMsg, string action)
         {
             JProperty status = new JProperty("status", "error");
-            JProperty msg = new JProperty("errMsg", "errorMsg");
-            JObject ans = new JObject(status, msg);
+            JProperty msg = new JProperty("errMsg", errorMsg);
+            JProperty act = new JProperty("action", action);
+            JObject ans = new JObject(status, msg, act);
             return ans.ToString();
+        }
+
+
+        [HttpGet]//Ugcs/startConnection?clientId=20474
+        public string startConnection([FromQuery] int clientId)
+        {
+
+            this.ugcsHandler = UgcsHandler.Instance;
+            try
+            {
+                if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
+                    clientId = this.ugcsHandler.startConnection();
+                ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+                cd.droneDataArr[1].state = State.resumeState.ToString();
+                return createSuccessResponse(cd.jsonString(), "startConnection");
+            }
+            catch (Exception e) {
+                return createErrorResponse("Connection To The Ugcs Server Failed", "executeMsg");
+            }
         }
 
         [HttpGet]//Ugcs/executeMission?clientId=20474&vehicleId=2&mission=FlyBy
@@ -47,9 +68,9 @@ namespace FleetCopterPOC.Controllers
                 //ClientData c = new ClientData(clientId, viechles[0], viechles[1]);
                 ClientData cd = this.ugcsHandler.clients[clientId].clientData;
                 cd.droneDataArr[1].state = State.resumeState.ToString();
-                return createSuccessResponse(cd.jsonString());
+                return createSuccessResponse(cd.jsonString(), "executeMsg");
             }
-            return createErrorResponse("Commad execution failed");
+            return createErrorResponse("Commad execution failed", "executeMsg");
 
         }
 
@@ -66,9 +87,9 @@ namespace FleetCopterPOC.Controllers
                 //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
                 ClientData cd = this.ugcsHandler.clients[clientId].clientData;
                 cd.droneDataArr[1].state = State.pauseState.ToString();
-                return createSuccessResponse(cd.jsonString());
+                return createSuccessResponse(cd.jsonString(), "pause");
             }
-            return createErrorResponse("Commad execution failed");
+            return createErrorResponse("Commad execution failed", "pause");
 
         }
 
@@ -86,9 +107,9 @@ namespace FleetCopterPOC.Controllers
                 //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
                 ClientData cd = this.ugcsHandler.clients[clientId].clientData;
                 cd.droneDataArr[1].state = State.resumeState.ToString();
-                return createSuccessResponse(cd.jsonString());
+                return createSuccessResponse(cd.jsonString(), "resume");
             }
-            return createErrorResponse("Commad execution failed");
+            return createErrorResponse("Commad execution failed", "resume");
 
         }
 
@@ -105,10 +126,9 @@ namespace FleetCopterPOC.Controllers
                 //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
                 ClientData cd = this.ugcsHandler.clients[clientId].clientData;
                 cd.droneDataArr[1].state = State.stopState.ToString();
-                return createSuccessResponse(cd.jsonString());
+                return createSuccessResponse(cd.jsonString(), "returnHome");
             }
-            return createErrorResponse("Commad execution failed");
-
+            return createErrorResponse("Commad execution failed", "returnHome");
         }
 
         [HttpGet]

@@ -2,7 +2,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-css-only/css/bootstrap.min.css'; 
 import 'mdbreact/dist/css/mdb.css';
 import React, { useState,useEffect } from "react";
-import { MDBBtn, MDBIcon } from "mdbreact";
+//import { MDBBtn, MDBIcon } from "mdbreact";
 import { connect } from 'react-redux'
 import { sendDronePause, sendDroneResume, sendDroneReturnHome } from '../redux'
 import pauseIcon from '../images/pause_icon.png';

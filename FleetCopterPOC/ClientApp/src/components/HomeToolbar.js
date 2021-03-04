@@ -1,14 +1,21 @@
-import React, { useState, useEffect} from 'react'
+import React, { useState, useEffect, useRef} from 'react'
 import { connect } from 'react-redux'
-import logo from '../images/logo1.png';
-import { sendDroneMission, setAlertOn, setAlertOff } from '../redux';
+import logo from '../images/logo.png';
+import { sendDroneMission, startConnection, setAlertOn, setAlertOff } from '../redux';
 import PopoverItem from './PopoverItem'
 import { Alert } from '@material-ui/lab';
 
 
 function HomeToolbar(props) {
 
-    const [playerStatus,SetPlayerStatus] = useState(false)
+    const containerRef = useRef();
+    const { current } = containerRef;
+
+    useEffect(() => {
+        props.startConnection(clientId);
+        console.log(props.droneData);
+    }, [current]);
+
     const clientId = (props.droneData && props.droneData.clientId)
 
     const vehicleId = (props.droneData &&
@@ -16,18 +23,11 @@ function HomeToolbar(props) {
         props.droneData.droneDataArr[1] && 
         props.droneData.droneDataArr[1].vehicleId)
 
-    const vehicleState = (props.droneData &&
-           props.droneData.droneDataArr && 
-           props.droneData.droneDataArr[1] && 
-           props.droneData.droneDataArr[1].state)
-
-    const errorState = (props.error)
-
 
     
 
     const handleFlyByClick = () => {
-        props.sendDroneMission('FlyBy', clientId, vehicleId)  
+        props.sendDroneMission('FlyBy', props.droneData.clientId, vehicleId)  
     }
 
     const handleBeautyShotClick = () => {
@@ -87,6 +87,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         sendDroneMission: (cId, vId, mission) => dispatch(sendDroneMission(cId, vId, mission)),
+        startConnection: (cId) => dispatch(startConnection(cId)),
         setAlertOn: () => dispatch(setAlertOn()), 
         setAlertOff: () => dispatch(setAlertOff())
     }

@@ -1,8 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useEffect, useRef, Text } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import navBackground from '../images/navBackground.png';
-import { Button, Popover, PopoverHeader, PopoverBody } from "reactstrap";
-import { CircularProgressbar, CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
+import { Popover, PopoverBody } from "reactstrap";
+import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { connect } from 'react-redux'
 import { updateDroneData } from '../redux'
@@ -13,13 +13,11 @@ function PopoverItem(props) {
     const [popoverOpen, setPopoverOpen] = useState(false)
     const intervalRef = useRef()
     const toggle = () => setPopoverOpen(!popoverOpen)
-    const [drone1Status, setDrone1Status] = useState({ status: "stand by", batteryPathColor: "#a6a6a6", droneTextClicked: false, changed: false })
-    const [drone2Status, setDrone2Status] = useState({ status: "stand by", batteryPathColor: "#a6a6a6", droneTextClicked: false, changed: false })
+
     const [drone1Changed, setDrone1Changed] = useState(false)
     const [drone2Changed, setDrone2Changed] = useState(false)
-    const [clientId, setClientId] = useState(0)
 
-    //const clientId = (props.droneData && props.droneData.clientId)
+    const clientId = (props.droneData && props.droneData.clientId)
 
     const drone1Alt = (props.droneData &&
         props.droneData.droneDataArr &&
@@ -52,14 +50,17 @@ function PopoverItem(props) {
         props.droneData.droneDataArr[1].state)
 
 
-
+    const [drone1Status, setDrone1Status] = useState({ status: (drone1State === "resumeState" || drone1State === "pauseState")?"airborne":"stand by", batteryPathColor: (drone1bat <= 20) ? '#4db8ff' : (drone1bat <= 100) ? '#e60000' : "#a6a6a6", droneTextClicked: false, changed: false })
+    const [drone2Status, setDrone2Status] = useState({ status: (drone1State === "resumeState" || drone1State === "pauseState") ? "airborne" : "stand by", batteryPathColor: "#a6a6a6", droneTextClicked: false, changed: false })
+    
     const updatePathColor = (dronenum) => {
-        if (dronenum == 1) {
-            if (drone1bat <= 20) { setDrone1Status({ ...drone1Status, batteryPathColor: '#e60000' }) }
+        if (dronenum === 1) {
+            if (drone1bat <= 20) { setDrone1Status({ ...drone1Status, batteryPathColor: '#e60000'})
+        }
             else if (drone1bat <= 100) { setDrone1Status({ ...drone1Status, batteryPathColor: '#4db8ff' }) }
             else { setDrone1Status({ ...drone1Status, batteryPathColor: '#a6a6a6' }) }
         }
-        else if (dronenum == 2) {
+        else if (dronenum === 2) {
             if (drone2bat <= 20) { setDrone2Status({ ...drone2Status, batteryPathColor: '#e60000' }) }
             else if (drone2bat <= 100) { setDrone2Status({ ...drone2Status, batteryPathColor: '#4db8ff' }) }
             else { setDrone2Status({ ...drone2Status, batteryPathColor: '#a6a6a6' }) }
@@ -67,36 +68,23 @@ function PopoverItem(props) {
         }
     }
     const updateState = (dronenum) => {
-        if (dronenum == 1) {
+        if (dronenum === 1) {
             if (drone1State === "resumeState" || drone1State === "pauseState") { setDrone1Status({ ...drone1Status, status: "airborne" })}
             else { setDrone1Status({ ...drone1Status, status: "stand by" }) }
         }
-        else if (dronenum == 2) {
+        else if (dronenum === 2) {
             if (drone2State === "resumeState" || drone2State === "pauseState") { setDrone2Status({ ...drone2Status, status: "airborne" }) }
             else { setDrone2Status({ ...drone2Status, status: "stand by" }) }
         }
     }
-
+    
     const fetchAlt = async () => {
-        //console.log("inside interval2!!");
-        //console.log(props.droneData);
-        const updatedId = props.updateDroneData(props.droneData.clientId);
-        console.log("updated clientid!!");
-        console.log(updatedId);
-        if (clientId != updatedId) {
-            setClientId(updatedId);
-        }
-        console.log(props.droneData.clientId);
-        console.log(props.droneData);
+        await props.updateDroneData(props.droneData.clientId);
         setDrone1Changed(!drone1Changed);
         setDrone2Changed(!drone2Changed);
-        //console.log(drone2Alt);
-        //console.log(drone2bat);
-        //console.log(drone2State);
-        //console.log("end interval2!!");
-
     }
 
+    
     //update drones telemetry when new drone data has been fetched frome the server
     useEffect(() => {
         updateState(1);
@@ -107,7 +95,7 @@ function PopoverItem(props) {
         updateState(2);
         updatePathColor(2);
     }, [drone2Changed])
-
+    
     useEffect(() => {
         if (popoverOpen) {
             intervalRef.current = setInterval(fetchAlt, 1000)
@@ -122,7 +110,9 @@ function PopoverItem(props) {
     }, [popoverOpen])
 
     const handleAltInterval = () => {
-        //props.updateDroneData(clientId)
+        props.updateDroneData(props.droneData.clientId)
+        setDrone1Changed(!drone1Changed);
+        setDrone2Changed(!drone2Changed);
         if (drone1Status.droneTextClicked) {//if(!popoverOpen)
             clearInterval(intervalRef.current)
             setDrone1Status({ ...drone1Status, droneTextClicked: false })

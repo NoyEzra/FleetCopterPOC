@@ -24,8 +24,6 @@ const firstDroneReducer = (state = initialState, acion) => {
                 errMsg: ''
             }
         case SEND_DRONE_SUCCESS:
-            console.log(acion.payload)
-            console.log("end reducer")
             return {
                 loading: false,
                 droneData: acion.payload,
@@ -33,10 +31,9 @@ const firstDroneReducer = (state = initialState, acion) => {
                 errMsg: ''
             }
         case SEND_DRONE_ERROR:
-            console.log("In error case!!");
             return {
+                ...state,
                 loading: false,
-                droneData: {},
                 error: true,
                 errMsg: acion.payload.errMsg
             }
