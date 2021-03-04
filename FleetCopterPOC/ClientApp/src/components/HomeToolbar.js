@@ -1,22 +1,21 @@
 import React , {useState} from 'react'
-import axios from 'axios'
+import { connect } from 'react-redux'
 import logo from '../images/logo1.png';
+import { sendDroneFlyBy } from '../redux';
 import PopoverItem from './PopoverItem'
 
 
-function HomeToolbar() {
+function HomeToolbar( { firstDroneData, sendDroneFlyBy }) {
 
     const [playerStatus,SetPlayerStatus] = useState(false)
+
     const handleFlyByClick = () => {
-        axios.get('Ugcs/executeMission')
-            .then(res => {
-                console.log(res)
-                if(res.data.Answer)
-                    SetPlayerStatus(true)
-            })
-            .catch(err => {
-                console.log(err)
-            })
+        sendDroneFlyBy()
+        firstDroneData.loading ? 
+        (console.log('loading FlyBy')) :
+        firstDroneData.error ?
+        (console.log(firstDroneData.error)) :
+        SetPlayerStatus(firstDroneData.droneData && firstDroneData.droneData.droneDataArr[0] && firstDroneData.droneData.droneDataArr[0].isOnFlight)
     }
 
     /*
@@ -40,7 +39,21 @@ function HomeToolbar() {
     )
 }
 
-export default HomeToolbar
+
+const mapStateToProps = state => {
+    return {
+        firstDroneData: state.firstDrone
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        sendDroneFlyBy: () => dispatch(sendDroneFlyBy())
+    }
+}
+
+
+export default connect(mapStateToProps,mapDispatchToProps)(HomeToolbar)
 
 
 
