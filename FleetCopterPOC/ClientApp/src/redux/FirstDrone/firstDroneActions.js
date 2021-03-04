@@ -24,35 +24,24 @@ export const sendDroneError = error => {
     }
 }
 
-export const sendDroneFlyBy = () => {
-    return (dispatch) => {
-        dispatch(sendDroneRequest)
-        axios.get('Ugcs/executeMission/FlyBy')
-            .then(response => {
-                const droneData = response.data
-                console.log(droneData)
-                dispatch(sendDroneSuccess(droneData))
-            })
-            .catch(error => {
-                const errMsg = error.message
-                console.log(errMsg)
-                dispatch(sendDroneError(errMsg))
-            })
-    }
-}
 
-export const sendDroneMission = (mission) => {
+export const sendDroneMission = (mission, clientId, vehicleId) => {
     return (dispatch) => {
-        var requestUrl = 'Ugcs/executeMission/' + mission
-        axios.get(requestUrl)
+        axios.get(`Ugcs/executeMission/?clientId=${clientId}&mission=${mission}&vehicleId=${vehicleId}`)
             .then(response => {
-                const droneData = response.data
-                console.log(droneData)
-                dispatch(sendDroneSuccess(droneData))
+                const data = response.data
+                console.log(data)
+                if (data.status === "success") {
+                    console.log("mission calling reducer")
+                    dispatch(sendDroneSuccess(data.droneData))
+                }
+                else if (data.status === "error") {
+                    dispatch(sendDroneError(data))
+                }
             })
             .catch(error => {
                 const errMsg = error.message
-                console.log(errMsg)
+                console.log(error.response.data)
                 dispatch(sendDroneError(errMsg))
             })
     }
@@ -63,9 +52,16 @@ export const sendDronePause = (clientId,vehicleId) => {
         dispatch(sendDroneRequest)
         axios.get(`Ugcs/pauseMission?clientId=${clientId}&vehicleId=${vehicleId}`)
             .then(response => {
-                const droneData = response.data
-                console.log(droneData)
-                dispatch(sendDroneSuccess(droneData))
+                const data = response.data
+                console.log(data)
+                if (data.status === "success") {
+                    console.log("pause calling reducer")
+                    dispatch(sendDroneSuccess(data.droneData))
+                }
+                else if (data.status === "error") {
+                    dispatch(sendDroneError(data))
+                }
+                
             })
             .catch(error => {
                 const errMsg = error.message
@@ -80,9 +76,15 @@ export const sendDroneResume = (clientId,vehicleId) => {
         dispatch(sendDroneRequest)
         axios.get(`Ugcs/resumeMission?clientId=${clientId}&vehicleId=${vehicleId}`)
             .then(response => {
-                const droneData = response.data
-                console.log(droneData)
-                dispatch(sendDroneSuccess(droneData))
+                const data = response.data
+                console.log(data)
+                if (data.status === "success") {
+                    console.log("backHome calling reducer")
+                    dispatch(sendDroneSuccess(data.droneData))
+                }
+                else if (data.status === "error") {
+                    dispatch(sendDroneError(data))
+                }
             })
             .catch(error => {
                 const errMsg = error.message
@@ -97,9 +99,38 @@ export const sendDroneReturnHome = (clientId,vehicleId) => {
         dispatch(sendDroneRequest)
         axios.get(`Ugcs/returnHomeMission?clientId=${clientId}&vehicleId=${vehicleId}`)
             .then(response => {
-                const droneData = response.data
-                console.log(droneData)
-                dispatch(sendDroneSuccess(droneData))
+                const data = response.data
+                console.log(data)
+                if (data.status == "success") {
+                    console.log("backHome calling reducer")
+                    dispatch(sendDroneSuccess(data.droneData))
+                }
+                else if (data.status == "error") {
+                    console.log("In errorrrrr")
+                    dispatch(sendDroneError(data))
+                }
+            })
+            .catch(error => {
+                const errMsg = error.message
+                console.log(errMsg)
+                dispatch(sendDroneError(errMsg))
+            })
+    }
+}
+
+
+export const updateDroneData = (clientId) => {
+    console.log("client id")
+    console.log(clientId)
+    return (dispatch) => {
+        axios.get(`Ugcs/updateDronesData/?clientId=${clientId}`)
+            .then(response => {
+                const data = response.data
+                console.log("updateDronData calling reducer")
+                dispatch(sendDroneSuccess(data))
+                console.log("droneDate!!!!!!!!!!!!!!!!!!!!")
+                console.log(data)
+                return data.droneData.clientId;
             })
             .catch(error => {
                 const errMsg = error.message

@@ -11,9 +11,9 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
-  <React.StrictMode>
+  <React.Fragment>
     <App />
-  </React.StrictMode>,
+    </React.Fragment>,
   document.getElementById('root')
 );
 

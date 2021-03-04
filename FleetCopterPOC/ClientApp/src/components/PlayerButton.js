@@ -5,12 +5,14 @@ import React, { useState,useEffect } from "react";
 import { MDBBtn, MDBIcon } from "mdbreact";
 import { connect } from 'react-redux'
 import { sendDronePause, sendDroneResume, sendDroneReturnHome } from '../redux'
+import pauseIcon from '../images/pause_icon.png';
+import playIcon from '../images/play_icon.png';
+import stopIcon from '../images/stop_icon.png';
+
+
 
 function PlayerButton(props) {
-    const [playerIcon,setPlayerIcon] = useState('play-circle')
-    const [triggerResume,setTriggerResume] = useState(0)
-    const [triggerPause,setTriggerPause] = useState(0)
-
+    const [playerButton,setPlayerButton] = useState(true)
     const vehicleId = (props.droneData &&
                        props.droneData.droneDataArr && 
                        props.droneData.droneDataArr[1] && 
@@ -27,6 +29,36 @@ function PlayerButton(props) {
       //2)keep tracking drone while returns home, when it get home -> drone became disabled.
       //   until then pause and resume should be available.
     useEffect(() => {
+      if(vehicleState === 'pauseState'){
+        setPlayerButton(true)
+      }//pause button pressed => change to play button 
+      else if(vehicleState === 'resumeState'){
+        setPlayerButton(false)
+      } //play button pressed => change to pause button
+      else {
+        setPlayerButton(true)
+      } //stop button pressed => change to play button (disabled)
+    }, [vehicleState])
+
+    
+
+    const clickHandle = () => {
+      if(isOnFlight && playerButton )
+        //'play-circle' button pressed
+        props.sendDroneResume(props.droneData.clientId,vehicleId)
+          
+      else if(isOnFlight && !playerButton)
+        //'pause' button pressed
+        props.sendDronePause(props.droneData.clientId,vehicleId)   
+    }
+
+    const stopClickHandle = () => {
+        props.sendDroneReturnHome(props.droneData.clientId,vehicleId) 
+    }
+/*
+    const [playerIcon,setPlayerIcon] = useState('play-circle')
+
+ useEffect(() => {
       if(vehicleState === 'pauseState') setPlayerIcon('play-circle')//pause button pressed => change to play button 
       else if(vehicleState === 'resumeState') setPlayerIcon('pause')//play button pressed => change to pause button
       else setPlayerIcon('play-circle')                             //stop button pressed => change to play button (disabled)
@@ -43,34 +75,39 @@ function PlayerButton(props) {
         props.sendDronePause(props.droneData.clientId,vehicleId)   
     }
 
-    const stopClickHandle = () => {
-        props.sendDroneReturnHome(props.droneData.clientId,vehicleId) 
-    }
-    return (
-      <div>
-        {
-          isOnFlight ?
-          (<React.Fragment>
-            <MDBBtn tag="a" size="lg" color="grey" className="button" onClick={stopClickHandle}
-             style={{"borderRadius":"50%","paddingLeft": "16px","paddingRight":"16px"}}>
-              <MDBIcon icon="stop" size="4x"/>
+    <MDBBtn tag="a" size="lg" color="grey" className="button" onClick={stopClickHandle}
+             style={{"borderRadius":"50%","paddingLeft": "16px","paddingRight":"16px"}}>  
+            <MDBIcon icon="stop" size="4x"/>
             </MDBBtn>
             <MDBBtn tag="a" size="lg" color="grey" className="button" onClick={clickHandle}
              style={{"borderRadius":"50%","paddingLeft": "16px","paddingRight":"16px"}}>
               <MDBIcon icon={playerIcon} size="4x"/>
             </MDBBtn>
+*/
+
+    return (
+      <div style={{backgroundColor:"#f2f2f2", marginLeft: "50px", height: "60px", width: "150px", borderColor: "black", borderRadius: "25px", backgroundImage: "linear-gradient(to top, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 100%)"}}>
+        {
+          isOnFlight ?
+          (<React.Fragment>
+            <div style={{height:"auto", width:"110px", margin:"0 auto", position:"center"}}>
+              <button className="button" onClick={clickHandle} style={{borderRadius:"50%", height:"50px", width:"50px", paddingLeft:"16px", paddingRight:"20px", backgroundImage:playerButton?`url(${playIcon})`:`url(${pauseIcon})`, backgroundSize: "cover"}}>
+              </button>
+              <button className="button" onClick={stopClickHandle} style={{borderRadius:"50%", height:"50px", width:"50px", marginLeft:"5px", paddingLeft:"16px", paddingRight:"16px", backgroundImage:`url(${stopIcon})`, backgroundSize: "cover"}}>
+              </button>
+            </div>
           </React.Fragment>) 
           :
           (<React.Fragment>
-            <MDBBtn tag="a" size="lg" color="grey" className="button" disabled 
-             style={{"borderRadius":"50%","paddingLeft": "16px","paddingRight":"16px"}}>
-              <MDBIcon icon="stop" size="4x"/>
-            </MDBBtn>
-            <MDBBtn tag="a" size="lg" color="grey" className="button" disabled 
-             style={{"borderRadius":"50%","paddingLeft": "16px","paddingRight":"16px"}}>
-              <MDBIcon icon={playerIcon} size="4x"/>
-            </MDBBtn>
-          </React.Fragment>)
+            <div style={{height:"auto", width:"110px", margin:"0 auto", position:"relative"}}>
+              <button className="button" disabled onClick={clickHandle} style={{borderRadius:"50%", height:"50px", width:"50px", paddingLeft:"16px", paddingRight:"16px", backgroundImage:playerButton?`url(${playIcon})`:`url(${pauseIcon})`, backgroundSize: "cover"}}>
+              </button>
+              <button className="button" disabled onClick={stopClickHandle} style={{borderRadius:"50%", height:"50px", width:"50px", marginLeft:"5px", paddingLeft:"16px", paddingRight:"16px", backgroundImage:`url(${stopIcon})`, backgroundSize: "cover"}}>
+              </button>
+            </div>
+          </React.Fragment>
+          )
+          
         }
       </div>
     )
@@ -83,6 +120,7 @@ const mapStateToProps = state => {
     error: state.firstDrone.error
   }
 }
+
 const mapDispatchToProps = dispatch => {
   return {
       sendDronePause: (cId,vId) => dispatch(sendDronePause(cId,vId)),

@@ -11,16 +11,34 @@ namespace FleetCopterPOC
 {
     public class UgcsHandler
     {
-        public int clientId { get; private set; }
-        private MessageExecutor messageExecutor { get; set; }
-        private NotificationListener notificationListener { get; set; }
-        private Dictionary<int, VehicleTelemetry> vehiclesTelemetry { get; set; }
-        public UgcsHandler(int clientIdRequested = -1)
+
+        private static UgcsHandler instance = null;
+        private static readonly object padlock = new object();
+
+        public Dictionary<int, Client> clients { get; set; }
+
+        private UgcsHandler()
         {
-            startConnection(clientIdRequested); 
+            this.clients = new Dictionary<int, Client>();
         }
 
-        public void startConnection(int clientIdRequested)
+        public static UgcsHandler Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new UgcsHandler();
+                    }
+                    return instance;
+                }
+            }
+        }
+
+
+        public int startConnection(int clientIdRequested = -1)
         {
             TcpClient tcpClient = new TcpClient();
             try
@@ -31,15 +49,15 @@ namespace FleetCopterPOC
             catch (Exception e)
             {
                 Console.WriteLine("Connection wasn't established");
-                return;
+                return -1;
             }
 
-            
+
             MessageSender messageSender = new MessageSender(tcpClient.Session);
             MessageReceiver messageReceiver = new MessageReceiver(tcpClient.Session);
-            messageExecutor = new MessageExecutor(messageSender, messageReceiver, new InstantTaskScheduler());
+            MessageExecutor messageExecutor = new MessageExecutor(messageSender, messageReceiver, new InstantTaskScheduler());
             messageExecutor.Configuration.DefaultTimeout = 10000;
-            notificationListener = new NotificationListener();
+            NotificationListener notificationListener = new NotificationListener();
             messageReceiver.AddListener(-1, notificationListener);
 
             AuthorizeHciRequest request = new AuthorizeHciRequest();
@@ -48,7 +66,7 @@ namespace FleetCopterPOC
             var future = messageExecutor.Submit<AuthorizeHciResponse>(request);
             future.Wait();
             AuthorizeHciResponse AuthorizeHciResponse = future.Value;
-            clientId = AuthorizeHciResponse.ClientId;
+            int clientId = AuthorizeHciResponse.ClientId;
 
             LoginRequest loginRequest = new LoginRequest();
             loginRequest.UserLogin = "admin";
@@ -65,13 +83,10 @@ namespace FleetCopterPOC
                 ObjectType = "Vehicle",
                 RefreshDependencies = true
             };
-            //getObjectListRequest.RefreshExcludes.Add("Avatar");
-            //getObjectListRequest.RefreshExcludes.Add("PayloadProfile");
-            //getObjectListRequest.RefreshExcludes.Add("Route");
+
             var task = messageExecutor.Submit<GetObjectListResponse>(getObjectListRequest);
             task.Wait();
 
-            this.vehiclesTelemetry = new Dictionary<int, VehicleTelemetry>();
             List<Vehicle> vehiclesList = new List<Vehicle>();
             var list = task.Value;
             if (list != null)
@@ -81,11 +96,14 @@ namespace FleetCopterPOC
                     System.Console.WriteLine(string.Format("name: {0}; id: {1}; type: {2}",
                            v.Vehicle.Name, v.Vehicle.Id, v.Vehicle.Type.ToString()));
                     vehiclesList.Add(v.Vehicle);
-                    vehiclesTelemetry.Add(v.Vehicle.Id, new VehicleTelemetry(v.Vehicle.Id));
                 }
 
                 Vehicle vehicle1 = task.Value.Objects.FirstOrDefault().Vehicle;
             }
+
+            Client newClient = new Client(clientId, messageExecutor, notificationListener, vehiclesList);
+            this.clients.Add(clientId, newClient);
+            return clientId;
         }
 
         private Mission importMission(string filePath, int clientId, MessageExecutor messageExecutor)
@@ -190,7 +208,7 @@ namespace FleetCopterPOC
             uploadTask.Wait();
         }
 
-        private void vehicleNotificationSubscription(Vehicle vehicle)
+        private void vehicleNotificationSubscription(int clientId, Vehicle vehicle, MessageExecutor messageExecutor, NotificationListener notificationListener)
         {
             //copied !!!
             var eventSubscriptionWrapper = new EventSubscriptionWrapper();
@@ -212,7 +230,7 @@ namespace FleetCopterPOC
             notificationListener.AddSubscription(st);
         }
 
-        private void vehicleCommandSubscription(Vehicle vehicle)
+        private void vehicleCommandSubscription(int clientId, Vehicle vehicle, MessageExecutor messageExecutor, NotificationListener notificationListener)
         {
             //copied !!
             EventSubscriptionWrapper commandSubscription = new EventSubscriptionWrapper()
@@ -240,7 +258,7 @@ namespace FleetCopterPOC
             notificationListener.AddSubscription(stCommand);
         }
 
-        private void logSubscription()
+        private void logSubscription(int clientId, MessageExecutor messageExecutor, NotificationListener notificationListener)
         {
             // copied !!
             var logSubscriptionWrapper = new EventSubscriptionWrapper();
@@ -302,7 +320,7 @@ namespace FleetCopterPOC
             return null;
         }
 
-        private void telemetrySubscription()
+        private void telemetrySubscription(int clientId, MessageExecutor messageExecutor, NotificationListener notificationListener)
         {
             //TelemetrySubscription - copied
             var telemetrySubscriptionWrapper = new EventSubscriptionWrapper();
@@ -318,10 +336,16 @@ namespace FleetCopterPOC
                 {
                     foreach (Telemetry t in notification.Event.TelemetryEvent.Telemetry)
                     {
-                        if (t.TelemetryField.Code == "altitude_agl")
+                        if (t.TelemetryField.Code == "altitude_agl" && this.clients[clientId].clientData.validDrone(notification.Event.TelemetryEvent.Vehicle.Id) && t.Value != null)
                         {
+
                             //I added this part - in case the altitudeAGL value changed - update the relevant vehicl's telemetry
-                            this.vehiclesTelemetry[notification.Event.TelemetryEvent.Vehicle.Id].altitudeAgl = (double)getTelemetryValue(t.Value);
+                            double newAlt = (double)System.Math.Round((double)getTelemetryValue(t.Value), 2);
+                            if(newAlt < 1)
+                            {
+                                newAlt = 0.0;
+                            }
+                            this.clients[clientId].clientData.droneDataArr[notification.Event.TelemetryEvent.Vehicle.Id - 1].altitudeAgl = newAlt;
                             System.Console.WriteLine(getTelemetryValue(t.Value));
                             System.Console.WriteLine(t.Value.LongValueSpecified);
                             System.Console.WriteLine(t.Value.DoubleValueSpecified);
@@ -333,21 +357,23 @@ namespace FleetCopterPOC
             notificationListener.AddSubscription(stTelemetry);
         }
 
-        public bool handleSimulationMission(String missionPath, int vehicleId, string action)
+        public bool handleMission(int clientId, String missionPath, int vehicleId, string action)
         {
-            if (!checkVehicleId(vehicleId))
+            if (!checkVehicleId(clientId, vehicleId))
                 return false; //Wrong vehicleId
             try
             {
+                MessageExecutor messageExecutor = this.clients[clientId].messageExecutor;
+                NotificationListener notificationListener = this.clients[clientId].notificationListener;
+
                 Mission mission = importMission(missionPath, clientId, messageExecutor);
                 Mission missionFromUcs = getMissionFromServer(mission, clientId, messageExecutor);
 
-                
                 List<Route> routes = missionFromUcs.Routes;
                 Route chosenRoute = null;
                 foreach (Route r in routes)
                 {
-                    if(r.Name == action)
+                    if (r.Name == action)
                     {
                         chosenRoute = r;
                         break;
@@ -355,17 +381,17 @@ namespace FleetCopterPOC
 
                 }
 
-                if(chosenRoute == null)
+                if (chosenRoute == null)
                 {
                     return false;
                 }
 
                 //add vehicle prfile and mission to route
                 Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
-                vehicleNotificationSubscription(requestedVehicle);
-                vehicleCommandSubscription(requestedVehicle);
-                logSubscription();
-                telemetrySubscription();
+                vehicleNotificationSubscription(clientId, requestedVehicle, messageExecutor, notificationListener);
+                vehicleCommandSubscription(clientId, requestedVehicle, messageExecutor, notificationListener);
+                logSubscription(clientId, messageExecutor, notificationListener);
+                telemetrySubscription(clientId, messageExecutor, notificationListener);
 
                 chosenRoute.VehicleProfile = requestedVehicle.Profile;
                 chosenRoute.Mission = mission;
@@ -385,9 +411,9 @@ namespace FleetCopterPOC
             }
         }
 
-        public double getVehicleAlt(int vehicleId)
+        public double getVehicleAlt(int clientId, int vehicleId)
         {
-            return this.vehiclesTelemetry[vehicleId].altitudeAgl;
+            return this.clients[clientId].clientData.droneDataArr[vehicleId - 1].altitudeAgl;
         }
 
         public bool pauseMission(int clientId, int vehicleId)
@@ -397,6 +423,7 @@ namespace FleetCopterPOC
             //Continue Code: mission_resume
             try
             {
+                MessageExecutor messageExecutor = this.clients[clientId].messageExecutor;
                 Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
                 sendCommandToVehicle(requestedVehicle, "mission_pause", clientId, messageExecutor);
                 return true;
@@ -416,6 +443,7 @@ namespace FleetCopterPOC
             //Continue Code: mission_resume
             try
             {
+                MessageExecutor messageExecutor = this.clients[clientId].messageExecutor;
                 Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
                 sendCommandToVehicle(requestedVehicle, "mission_resume", clientId, messageExecutor);
                 return true;
@@ -434,6 +462,7 @@ namespace FleetCopterPOC
             //Continue Code: mission_resume
             try
             {
+                MessageExecutor messageExecutor = this.clients[clientId].messageExecutor;
                 Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
                 sendCommandToVehicle(requestedVehicle, "return_to_home", clientId, messageExecutor);
                 return true;
@@ -445,28 +474,92 @@ namespace FleetCopterPOC
             }
         }
 
-        private bool checkVehicleId(int vehicleId)
+        private bool checkVehicleId(int clientId, int vehicleId)
         {
-            foreach(var v in this.vehiclesTelemetry)
+            foreach (var v in this.clients[clientId].clientData.droneDataArr)
             {
-                if(v.Key == vehicleId)
+                if (v.vehicleId == vehicleId)
                     return true;
             }
             return false;
         }
 
-        public int[] getVeichledId()
+        public long[] getVeichledId(int clientId)
         {
-            int[] arr = new int[this.vehiclesTelemetry.Count];
+
+            long[] arr = new long[this.clients[clientId].clientData.droneDataArr.Length];
             int i = 0;
-            foreach (var v in this.vehiclesTelemetry)
+            foreach (DroneData dd in this.clients[clientId].clientData.droneDataArr)
             {
-                arr[i] = v.Key;
+                arr[i] = dd.vehicleId;
                 i++;
             }
             return arr;
         }
 
-       
+
+        public void updateBatteryLvl(int clientId)
+        {
+            MessageExecutor messageExecutor = this.clients[clientId].messageExecutor;
+            foreach (DroneData dd in this.clients[clientId].clientData.droneDataArr)
+            {
+
+                Vehicle requestedVehicle = getRequestedVehicle(dd.vehicleId, clientId, messageExecutor);
+                // Get Telemetry for vehicle
+                
+                DateTime utcTime = DateTime.Now.ToUniversalTime();
+                DateTime posixEpoch = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                TimeSpan span = utcTime - posixEpoch;
+                var beginningMilliseconds = (long)span.TotalMilliseconds;
+                MessageFuture<GetTelemetryResponse> telemetryFuture = messageExecutor.Submit<GetTelemetryResponse>(new GetTelemetryRequest
+                {
+                    ClientId = clientId,
+                    Vehicle = requestedVehicle,
+                    Limit = 0,
+                    LimitSpecified = true,
+                    ToTimeSpecified = false
+                });
+                telemetryFuture.Wait();
+                GetTelemetryResponse telemetryResp = telemetryFuture.Value;
+
+                bool found = false;
+                int batteryLvl = 0;
+                foreach (Telemetry t in telemetryResp.Telemetry)
+                {
+                    if(t.TelemetryField.Code == "")
+                    {
+                        found = true;
+                        batteryLvl = (int)getTelemetryValue(t.Value);
+                        break;
+                    }
+                }
+
+                if (found)
+                {
+                    this.clients[clientId].clientData.droneDataArr[1].battery = batteryLvl;
+                    return;
+                }
+                
+
+                /*
+                Console.WriteLine("vehicleId = " + dd.vehicleId + "##################################");
+                foreach (VehicleParameter vp in requestedVehicle.Profile.Parameters)
+                {
+                    Console.WriteLine(vp.Type);
+                    Console.WriteLine(vp.Value);
+                }*/
+                if (dd.vehicleId == 1)
+                {
+                    this.clients[clientId].clientData.droneDataArr[0].battery = 10;
+
+                }
+                else if (dd.vehicleId == 2)
+                {
+                    this.clients[clientId].clientData.droneDataArr[1].battery = 80;
+                }
+
+            }
+
+        }
     }
 }

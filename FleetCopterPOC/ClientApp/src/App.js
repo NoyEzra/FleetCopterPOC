@@ -13,13 +13,12 @@ export default class App extends Component {
 
   render () {
     return (
-        <Provider store = {store}>
-            <div className="mainDiv">
+        <Provider store={store}>
+            <div className="mainDiv" style={{ backgroundImage: `url(${background})`, backgroundRepeat: 'no-repeat', backgroundSize:'1200px 600px' }}>
                 <HomeToolbar />
-                <div className="backgroundDiv">
-                    <img className="background" src={background} alt="Background" />
+                <div style={{ position: 'absolute', bottom: '10px'}}>
+                    <PlayerButton />                
                 </div>
-                <PlayerButton />
             </div>
         </Provider>
     );

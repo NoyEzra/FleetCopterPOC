@@ -1,67 +1,74 @@
-import React , {useState} from 'react'
+import React, { useState, useEffect} from 'react'
 import { connect } from 'react-redux'
 import logo from '../images/logo1.png';
-import { sendDroneFlyBy } from '../redux';
+import { sendDroneMission, setAlertOn, setAlertOff } from '../redux';
 import PopoverItem from './PopoverItem'
+import { Alert } from '@material-ui/lab';
 
 
-function HomeToolbar({ firstDroneData, sendDroneFlyBy, sendDroneMission }) {
+function HomeToolbar(props) {
 
     const [playerStatus,SetPlayerStatus] = useState(false)
+    const clientId = (props.droneData && props.droneData.clientId)
+
+    const vehicleId = (props.droneData &&
+        props.droneData.droneDataArr && 
+        props.droneData.droneDataArr[1] && 
+        props.droneData.droneDataArr[1].vehicleId)
+
+    const vehicleState = (props.droneData &&
+           props.droneData.droneDataArr && 
+           props.droneData.droneDataArr[1] && 
+           props.droneData.droneDataArr[1].state)
+
+    const errorState = (props.error)
+
+
+    
 
     const handleFlyByClick = () => {
-        sendDroneFlyBy()
-        firstDroneData.loading ? 
-        (console.log('loading FlyBy')) :
-        firstDroneData.error ?
-        (console.log(firstDroneData.error)) :
-        SetPlayerStatus(firstDroneData.droneData && firstDroneData.droneData.droneDataArr[0] && firstDroneData.droneData.droneDataArr[0].isOnFlight)
+        props.sendDroneMission('FlyBy', clientId, vehicleId)  
     }
 
     const handleBeautyShotClick = () => {
-        sendDroneMission('BeautyShot')
-        firstDroneData.loading ?
-            (console.log('loading BeautyShot')) :
-            firstDroneData.error ?
-                (console.log(firstDroneData.error)) :
-                SetPlayerStatus(firstDroneData.droneData && firstDroneData.droneData.droneDataArr[0] && firstDroneData.droneData.droneDataArr[0].isOnFlight)
+        props.sendDroneMission('BeautyShot', clientId, vehicleId)
     }
 
     const handleCriticalHoles = () => {
-        sendDroneMission('CriticalHoles')
-        firstDroneData.loading ?
-            (console.log('loading CriticalHoles')) :
-            firstDroneData.error ?
-                (console.log(firstDroneData.error)) :
-                SetPlayerStatus(firstDroneData.droneData && firstDroneData.droneData.droneDataArr[0] && firstDroneData.droneData.droneDataArr[0].isOnFlight)
+        props.sendDroneMission('CriticalHoles', clientId, vehicleId)
     }
 
     const handlePerimSweapClick = () => {
-        sendDroneMission('PerimSweap')
-        firstDroneData.loading ?
-            (console.log('loading PerimSweap')) :
-            firstDroneData.error ?
-                (console.log(firstDroneData.error)) :
-                SetPlayerStatus(firstDroneData.droneData && firstDroneData.droneData.droneDataArr[0] && firstDroneData.droneData.droneDataArr[0].isOnFlight)
+        props.sendDroneMission('PerimSweap', clientId, vehicleId)
     }
 
-    /*
-    const handleFlyByClick = async () => {
-        const response = await fetch('Ugcs/executeMission')
-        console.log("SUCCESS")
-        console.log(response)
-    }
-    */
+    useEffect(() => {
+        if (props.error) {
+            console.log(props.errorMsg);
+            props.setAlertOn();
+            setTimeout(() => {
+                props.setAlertOff();
+            }, 5000);
+        }
+    }, [props.error])
+
+
 
     return (
-        <div className="buttonPanel">
-            <img className="logo" src={logo} alt="Logo" />
-            <button className="buttonPanel-btn">Fly To Point</button>
-            <button className="buttonPanel-btn" onClick={handleBeautyShotClick}>Beauty Shot</button>
-            <button className="buttonPanel-btn" onClick={handleFlyByClick}>FlyBy</button>
-            <button className="buttonPanel-btn" onClick={handleCriticalHoles}>Critical Holes</button>
-            <button className="buttonPanel-btn" onClicl={handlePerimSweapClick}>Perim Sweep</button>
-            <PopoverItem />
+        <div>
+            <div className="buttonPanel">
+                <img className="logo" src={logo} alt="Logo" />
+                <button className="buttonPanel-btn">Fly To Point</button>
+                <button className="buttonPanel-btn" onClick={handleBeautyShotClick}>Beauty Shot</button>
+                <button className="buttonPanel-btn" onClick={handleFlyByClick}>FlyBy</button>
+                <button className="buttonPanel-btn" onClick={handleCriticalHoles}>Critical Holes</button>
+                <button className="buttonPanel-btn" onClick={handlePerimSweapClick}>Perim Sweep</button>
+                <PopoverItem />
+            </div>
+            {props.alertOn &&
+                <Alert severity="error">{props.errMsg}</Alert>
+
+            }
         </div>
     )
 }
@@ -69,16 +76,21 @@ function HomeToolbar({ firstDroneData, sendDroneFlyBy, sendDroneMission }) {
 
 const mapStateToProps = state => {
     return {
-        firstDroneData: state.firstDrone
-    }
+        loading: state.firstDrone.loading,
+        droneData: state.firstDrone.droneData,
+        error: state.firstDrone.error,
+        errMsg: state.firstDrone.errMsg,
+        alertOn: state.alert.alertOn
+      }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        sendDroneFlyBy: () => dispatch(sendDroneFlyBy())
+        sendDroneMission: (cId, vId, mission) => dispatch(sendDroneMission(cId, vId, mission)),
+        setAlertOn: () => dispatch(setAlertOn()), 
+        setAlertOff: () => dispatch(setAlertOff())
     }
 }
-
 
 export default connect(mapStateToProps,mapDispatchToProps)(HomeToolbar)
 

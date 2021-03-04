@@ -7,88 +7,128 @@ using System.Threading.Tasks;
 using UGCS.Sdk.Protocol;
 using UGCS.Sdk.Protocol.Encoding;
 using UGCS.Sdk.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FleetCopterPOC.Controllers
 {
     public class UgcsController : Controller
     {
         UgcsHandler ugcsHandler { get; set; }
-        public UgcsController()
+
+
+        private string createSuccessResponse(string droneData)
         {
-            ugcsHandler = null;
+            JProperty status = new JProperty("status", "success");
+            JProperty dd = new JProperty("droneData", droneData);
+            JObject ans = new JObject(status, dd);
+            return ans.ToString();
         }
 
-        [HttpGet]
-        public string executeMission(string action)
+        private string createErrorResponse(string errorMsg)
         {
-            if (this.ugcsHandler == null)
-                this.ugcsHandler = new UgcsHandler();
-            int vehicleId = 2;
-            if (this.ugcsHandler.handleSimulationMission("Demo mission.json", vehicleId, action))
+            JProperty status = new JProperty("status", "error");
+            JProperty msg = new JProperty("errMsg", "errorMsg");
+            JObject ans = new JObject(status, msg);
+            return ans.ToString();
+        }
+
+        [HttpGet]//Ugcs/executeMission?clientId=20474&vehicleId=2&mission=FlyBy
+        public string executeMission([FromQuery]int clientId, [FromQuery] string mission, [FromQuery] int vehicleId=2)
+        {
+            
+            this.ugcsHandler = UgcsHandler.Instance;
+            //upon first connection
+            if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
+                clientId = this.ugcsHandler.startConnection();
+            if (this.ugcsHandler.handleMission(clientId, "Demo mission.json", vehicleId, mission))
             {
-                int[] viechles = this.ugcsHandler.getVeichledId();
-                Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                c.droneDataArr[1].state = State.resumeState.ToString();
-                return c.jsonString();
+                //int[] viechles = this.ugcsHandler.getVeichledId(clientId);
+                //ClientData c = new ClientData(clientId, viechles[0], viechles[1]);
+                ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+                cd.droneDataArr[1].state = State.resumeState.ToString();
+                return createSuccessResponse(cd.jsonString());
             }
-            return "{\"Answer\": false}";
+            return createErrorResponse("Commad execution failed");
 
         }
 
         [HttpGet]  //Ugcs/pauseMission?clientId=20474&vehicleId=2
         public string pauseMission([FromQuery]int clientId, [FromQuery] int vehicleId=2)
         {
-            if (this.ugcsHandler == null)
-                this.ugcsHandler = new UgcsHandler(clientId);
+            this.ugcsHandler = UgcsHandler.Instance;
+            //upon first connection
+            if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
+                clientId = this.ugcsHandler.startConnection();
             if (this.ugcsHandler.pauseMission(clientId, vehicleId))
             {
-                int[] viechles = this.ugcsHandler.getVeichledId();
-                Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                c.droneDataArr[1].state = State.pauseState.ToString();
-                return c.jsonString();
+                //int[] viechles = this.ugcsHandler.getVeichledId();
+                //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+                cd.droneDataArr[1].state = State.pauseState.ToString();
+                return createSuccessResponse(cd.jsonString());
             }
-            return "{\"Answer\": false}";
+            return createErrorResponse("Commad execution failed");
 
         }
 
         [HttpGet]
         public string resumeMission([FromQuery] int clientId, [FromQuery] int vehicleId = 2)
         {
-            if (this.ugcsHandler == null)
-                this.ugcsHandler = new UgcsHandler(clientId);
+            this.ugcsHandler = UgcsHandler.Instance;
+            //upon first connection
+            if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
+                Console.WriteLine("firstConnection");
+                clientId = this.ugcsHandler.startConnection();
             if (this.ugcsHandler.resumeMission(clientId, vehicleId))
             {
-                int[] viechles = this.ugcsHandler.getVeichledId();
-                Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                c.droneDataArr[1].state = State.resumeState.ToString();
-                return c.jsonString();
+                //int[] viechles = this.ugcsHandler.getVeichledId();
+                //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+                cd.droneDataArr[1].state = State.resumeState.ToString();
+                return createSuccessResponse(cd.jsonString());
             }
-            return "{\"Answer\": false}";
+            return createErrorResponse("Commad execution failed");
 
         }
 
         [HttpGet]
         public string returnHomeMission([FromQuery] int clientId, [FromQuery] int vehicleId = 2)
         {
-            if (this.ugcsHandler == null)
-                this.ugcsHandler = new UgcsHandler(clientId);
+            this.ugcsHandler = UgcsHandler.Instance;
+            //upon first connection
+            if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
+                clientId = this.ugcsHandler.startConnection();
             if (this.ugcsHandler.returnHomeMission(clientId, vehicleId))
             {
-                int[] viechles = this.ugcsHandler.getVeichledId();
-                Client c = new Client(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                c.droneDataArr[1].state = State.stopState.ToString();
-                return c.jsonString();
+                //int[] viechles = this.ugcsHandler.getVeichledId();
+                //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+                cd.droneDataArr[1].state = State.stopState.ToString();
+                return createSuccessResponse(cd.jsonString());
             }
-            return "{\"Answer\": false}";
+            return createErrorResponse("Commad execution failed");
 
         }
 
-        public String vehicleAlt()
+        [HttpGet]
+        public string updateDronesData([FromQuery] int clientId)
         {
-            Double vehicleAlt = this.ugcsHandler.getVehicleAlt(2);
-            return vehicleAlt.ToString();
+            this.ugcsHandler = UgcsHandler.Instance;
+            //upon first connection
+            if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
+                clientId = this.ugcsHandler.startConnection();
+            this.ugcsHandler.updateBatteryLvl(clientId);
+            ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+            return cd.jsonString();
         }
 
+
+        [HttpGet]
+        public string getAvailableVehicles([FromQuery] int clientId)
+        {
+            return "";
+        }
 
         // GET: UgcsController/Details/5
         public ActionResult Details(int id)

@@ -1,22 +1,33 @@
 ﻿using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using UGCS.Sdk.Protocol;
+using UGCS.Sdk.Protocol.Encoding;
 
-public class Client
+namespace FleetCopterPOC
 {
-	public int clientId { get; set; }
-	public DroneData[] droneDataArr { get; set; }
+    public class Client
+    {
+        public int clientId { get; set; }
+        public ClientData clientData { get; set; }
+        public MessageExecutor messageExecutor { get; set; }
+        public NotificationListener notificationListener { get; set; }
+    
+        public Client(int clientId, MessageExecutor me, NotificationListener nl, List<Vehicle> vehiclesList)
+        {
+            this.clientId = clientId;
+            this.messageExecutor = me;
+            this.notificationListener = nl;
 
-	public Client(int clientId, int d1, int d2)
-	{
-		this.clientId = clientId;
-		droneDataArr = new DroneData[2];
-		droneDataArr[0] = new DroneData(d1);
-		droneDataArr[1] = new DroneData(d2);
-	}
-
-	public string jsonString()
-	{
-		return JsonSerializer.Serialize(this);
-	}
+            int d1 = 2;
+            int d2 = 2;
+            if(vehiclesList.Count >= 2)
+            {
+                d1 = vehiclesList[0].Id;
+                d2 = vehiclesList[1].Id;
+            }
+            this.clientData = new ClientData(clientId, d1, d2); 
+        }
+    }
 }
