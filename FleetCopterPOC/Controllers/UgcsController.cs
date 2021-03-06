@@ -39,7 +39,7 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]//Ugcs/startConnection?clientId=20474
         public string startConnection([FromQuery] int clientId)
         {
-
+            Console.WriteLine("inside start!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             try
             {
@@ -57,7 +57,7 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]//Ugcs/executeMission?clientId=20474&vehicleId=2&mission=FlyBy
         public string executeMission([FromQuery]int clientId, [FromQuery] string mission, [FromQuery] int vehicleId=2)
         {
-            
+            Console.WriteLine("inside mission!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
@@ -77,6 +77,7 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]  //Ugcs/pauseMission?clientId=20474&vehicleId=2
         public string pauseMission([FromQuery]int clientId, [FromQuery] int vehicleId=2)
         {
+            Console.WriteLine("inside pause!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
@@ -96,6 +97,7 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]
         public string resumeMission([FromQuery] int clientId, [FromQuery] int vehicleId = 2)
         {
+            Console.WriteLine("inside resume!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
@@ -116,6 +118,7 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]
         public string returnHomeMission([FromQuery] int clientId, [FromQuery] int vehicleId = 2)
         {
+            Console.WriteLine("inside return!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
@@ -134,12 +137,15 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]
         public string updateDronesData([FromQuery] int clientId)
         {
+            Console.WriteLine("update update!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
                 clientId = this.ugcsHandler.startConnection();
             this.ugcsHandler.updateBatteryLvl(clientId);
             ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+            Console.WriteLine(cd.jsonString());
+
             return cd.jsonString();
         }
 

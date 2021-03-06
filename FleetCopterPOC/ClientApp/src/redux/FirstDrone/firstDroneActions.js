@@ -54,6 +54,7 @@ export const sendDroneMission = (mission, clientId, vehicleId) => {
         axios.get(`Ugcs/executeMission/?clientId=${clientId}&mission=${mission}&vehicleId=${vehicleId}`)
             .then(response => {
                 const data = response.data
+                console.log(data)
                 if (data.status === "success") {
                     //console.log("mission calling reducer")
                     dispatch(sendDroneSuccess(data.droneData))
@@ -76,7 +77,7 @@ export const sendDronePause = (clientId,vehicleId) => {
         axios.get(`Ugcs/pauseMission?clientId=${clientId}&vehicleId=${vehicleId}`)
             .then(response => {
                 const data = response.data
-                //console.log(data)
+                console.log(data)
                 if (data.status === "success") {
                     //console.log("pause calling reducer")
                     dispatch(sendDroneSuccess(data.droneData))
@@ -99,7 +100,7 @@ export const sendDroneResume = (clientId,vehicleId) => {
         axios.get(`Ugcs/resumeMission?clientId=${clientId}&vehicleId=${vehicleId}`)
             .then(response => {
                 const data = response.data
-                //console.log(data)
+                console.log(data)
                 if (data.status === "success") {
                     //console.log("backHome calling reducer")
                     dispatch(sendDroneSuccess(data.droneData))
@@ -138,19 +139,15 @@ export const sendDroneReturnHome = (clientId,vehicleId) => {
 
 
 export const updateDroneData = (clientId) => {
-    console.log("client id")
-    console.log(clientId)
     return (dispatch) => {
         axios.get(`Ugcs/updateDronesData/?clientId=${clientId}`)
             .then(response => {
                 const data = response.data
                 //console.log("updateDronData calling reducer")
+                console.log(data)
                 dispatch(sendDroneSuccess(data))
-                return data.droneData.clientId;
             })
             .catch(error => {
-                const errMsg = error.message
-                console.log(errMsg)
             })
     }
 }

@@ -5,16 +5,13 @@ import {
 
 const initialState = {
     loading: true,
-    droneData: {},
+    droneData: { },
     error: false,
     errMsg: ''
 }
 
 const firstDroneReducer = (state = initialState, acion) => {
-    console.log("start reducer")
     console.log(state)
-    console.log(acion.type)
-    console.log("end reducer")
     switch(acion.type){
         case SEND_DRONE_REQUEST: 
             return {
@@ -24,12 +21,13 @@ const firstDroneReducer = (state = initialState, acion) => {
                 errMsg: ''
             }
         case SEND_DRONE_SUCCESS:
+            console.log(typeof acion.payload)
             return {
                 loading: false,
                 droneData: acion.payload,
                 error: false,
                 errMsg: ''
-            }
+            } 
         case SEND_DRONE_ERROR:
             return {
                 ...state,

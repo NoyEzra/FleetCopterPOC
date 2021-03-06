@@ -22,7 +22,7 @@ public class DroneData
 		this.vehicleId = id;
 		this.state = State.stopState.ToString();
 		this.altitudeAgl = 0.0;
-		this.battery = 100;
+		this.battery = 0;
 		this.isAvailable = true;
 		this.isOnPerimeter = false;
 	}
