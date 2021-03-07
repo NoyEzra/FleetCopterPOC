@@ -417,10 +417,6 @@ namespace FleetCopterPOC
             }
         }
 
-        public double getVehicleAlt(int clientId, int vehicleId)
-        {
-            return this.clients[clientId].clientData.droneDataArr[vehicleId - 1].altitudeAgl;
-        }
 
         public bool pauseMission(int clientId, int vehicleId)
         {
@@ -440,6 +436,7 @@ namespace FleetCopterPOC
                 return false;
             }
         }
+
 
 
         public bool resumeMission(int clientId, int vehicleId)
@@ -504,35 +501,51 @@ namespace FleetCopterPOC
         }
 
 
+        public List<Telemetry> getTelemetryList(int clientId, int vehicleId, MessageExecutor messageExecutor)
+        {
+            Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
+            // Get Telemetry for vehicle
+
+            DateTime utcTime = DateTime.Now.ToUniversalTime();
+            DateTime posixEpoch = new DateTime(2019, utcTime.Month, utcTime.Day, utcTime.Hour, utcTime.Minute, utcTime.Second, DateTimeKind.Utc);
+            TimeSpan span = utcTime - posixEpoch;
+            var beginningMilliseconds = (long)span.TotalMilliseconds;
+            MessageFuture<GetTelemetryResponse> telemetryFuture = messageExecutor.Submit<GetTelemetryResponse>(new GetTelemetryRequest
+            {
+                ClientId = clientId,
+                Vehicle = requestedVehicle,
+                Limit = 30,
+                LimitSpecified = true,
+                ToTimeSpecified = false
+            });
+            telemetryFuture.Wait();
+            GetTelemetryResponse telemetryResp = telemetryFuture.Value;
+
+            return telemetryResp.Telemetry;
+        }
+
         public void updateBatteryLvl(int clientId)
         {
             MessageExecutor messageExecutor = this.clients[clientId].messageExecutor;
             foreach (DroneData dd in this.clients[clientId].clientData.droneDataArr)
             {
 
-                Vehicle requestedVehicle = getRequestedVehicle(dd.vehicleId, clientId, messageExecutor);
-                // Get Telemetry for vehicle
-                
-                DateTime utcTime = DateTime.Now.ToUniversalTime();
-                DateTime posixEpoch = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                TimeSpan span = utcTime - posixEpoch;
-                var beginningMilliseconds = (long)span.TotalMilliseconds;
-                MessageFuture<GetTelemetryResponse> telemetryFuture = messageExecutor.Submit<GetTelemetryResponse>(new GetTelemetryRequest
-                {
-                    ClientId = clientId,
-                    Vehicle = requestedVehicle,
-                    Limit = 0,
-                    LimitSpecified = true,
-                    ToTimeSpecified = false
-                });
-                telemetryFuture.Wait();
-                GetTelemetryResponse telemetryResp = telemetryFuture.Value;
+                List<Telemetry> telemetryLst = getTelemetryList(clientId, dd.vehicleId, messageExecutor);
+               
 
                 bool found = false;
                 int batteryLvl = 0;
-                foreach (Telemetry t in telemetryResp.Telemetry)
+                Console.WriteLine("Start telemetry print==================================================");
+                System.Console.WriteLine("V id = {0}", dd.vehicleId);
+                foreach (Telemetry t in telemetryLst)
                 {
-                    if(t.TelemetryField.Code == "")
+                    //if(t.TelemetryField.Code == "TT_BATTERY_VOLTAGE")
+                    //{
+                        Console.WriteLine(t.TelemetryField.Code);
+                        Console.WriteLine(getTelemetryValue(t.Value));
+                    //}
+                    
+                    if(t.TelemetryField.Code == "TT_BATTERY_VOLTAGE")
                     {
                         found = true;
                         batteryLvl = (int)getTelemetryValue(t.Value);
@@ -567,5 +580,33 @@ namespace FleetCopterPOC
             }
 
         }
+
+
+        public bool droneAvailable(int clientId, int vehicleId)
+        {
+            List<Telemetry> telemetryLst = getTelemetryList(clientId, vehicleId, this.clients[clientId].messageExecutor);
+
+            bool finished = false;
+            bool zeroAglAlt = false;
+            bool zeroSpeed = true;
+
+            foreach (Telemetry t in telemetryLst)
+            {
+
+                if (t.TelemetryField.Code == "TT_GROUND_SPEED_X" | t.TelemetryField.Code == "TT_GROUND_SPEED_Y" || t.TelemetryField.Code == "TT_GROUND_SPEED_Z")
+                {
+                    zeroSpeed &= ((double)getTelemetryValue(t.Value) == 0);
+                }
+                if(t.TelemetryField.Code == "TT_AGL_ALTITUDE")
+                {
+                    zeroAglAlt = ((double)getTelemetryValue(t.Value) == 0);
+                }
+
+            }
+
+            return zeroAglAlt && zeroSpeed;
+
+        }
     }
+
 }

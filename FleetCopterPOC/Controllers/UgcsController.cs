@@ -150,6 +150,16 @@ namespace FleetCopterPOC.Controllers
         }
 
 
+        public bool isDroneAvailable([FromQuery] int clientId, [FromQuery] int vehicleId)
+        {
+            this.ugcsHandler = UgcsHandler.Instance;
+            if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
+                clientId = this.ugcsHandler.startConnection();
+            //return ugcsHandler.droneAvailable(clientId, vehicleId);
+            return false;
+        }
+
+
         [HttpGet]
         public string getAvailableVehicles([FromQuery] int clientId)
         {

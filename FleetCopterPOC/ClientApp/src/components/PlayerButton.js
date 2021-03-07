@@ -29,6 +29,9 @@ function PlayerButton(props) {
       //2)keep tracking drone while returns home, when it get home -> drone became disabled.
       //   until then pause and resume should be available.
     useEffect(() => {
+        console.log("vehicle state changed");
+        console.log(vehicleState);
+        console.log(props.droneData);
       if(vehicleState === 'pauseState'){
         setPlayerButton(true)
       }//pause button pressed => change to play button 

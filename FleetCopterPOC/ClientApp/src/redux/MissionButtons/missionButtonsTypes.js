@@ -1,0 +1,4 @@
+export const SET_FLY_BY = 'SET_FLY_BY'
+export const SET_PERIM_SWEAP = 'SET_PERIM_SWEAP'
+export const SET_BEAUTY_SHOT = 'SET_BEAUTY_SHOT'
+export const SET_CRITICAL_HOLES = 'SET_CRITICAL_HOLES'

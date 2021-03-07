@@ -1,4 +1,5 @@
 import axios from 'axios'
+import {setFlyByState, setBeautyShotState, setPerimSweapState, setCriticalHolesState} from '../MissionButtons/missionButtonsActions'
 import { 
     SEND_DRONE_REQUEST,
     SEND_DRONE_SUCCESS,
@@ -58,38 +59,44 @@ export const sendDroneMission = (mission, clientId, vehicleId) => {
                 if (data.status === "success") {
                     //console.log("mission calling reducer")
                     dispatch(sendDroneSuccess(data.droneData))
+                    switch(mission){
+                        case 'FlyBy':
+                            dispatch(setFlyByState(true));
+                    }
                 }
                 else if (data.status === "error") {
                     console.log(data)
                     dispatch(sendDroneError(data))
+                    return false;
                 }
             })
             .catch(error => {
                 const errMsg = error.response.data
                 console.log(errMsg)
+                return false;
             })
     }
 }
 
 export const sendDronePause = (clientId,vehicleId) => {
     return (dispatch) => {
-        dispatch(sendDroneRequest)
+        dispatch(sendDroneRequest);
         axios.get(`Ugcs/pauseMission?clientId=${clientId}&vehicleId=${vehicleId}`)
             .then(response => {
-                const data = response.data
+                const data = response.data;
                 console.log(data)
                 if (data.status === "success") {
                     //console.log("pause calling reducer")
-                    dispatch(sendDroneSuccess(data.droneData))
+                    dispatch(sendDroneSuccess(data.droneData));
                 }
                 else if (data.status === "error") {
-                    console.log(data)
+                    console.log(data);
                 }
                 
             })
             .catch(error => {
-                const errMsg = error.response.data
-                console.log(errMsg)
+                const errMsg = error.response.data;
+                console.log(errMsg);
             })
     }
 }

@@ -22,12 +22,15 @@ namespace FleetCopterPOC
 
             int d1 = 2;
             int d2 = 2;
+            int d3 = 2;
+            Console.WriteLine(vehiclesList.Count);
             if(vehiclesList.Count >= 2)
             {
                 d1 = vehiclesList[0].Id;
                 d2 = vehiclesList[1].Id;
+                d3 = vehiclesList[2].Id;
             }
-            this.clientData = new ClientData(clientId, d1, d2); 
+            this.clientData = new ClientData(clientId, d1, d2, d3); 
         }
     }
 }
