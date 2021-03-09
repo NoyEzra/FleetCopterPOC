@@ -46,7 +46,6 @@ namespace FleetCopterPOC.Controllers
                 if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
                     clientId = this.ugcsHandler.startConnection();
                 ClientData cd = this.ugcsHandler.clients[clientId].clientData;
-                cd.droneDataArr[1].state = State.resumeState.ToString();
                 return createSuccessResponse(cd.jsonString(), "startConnection");
             }
             catch (Exception e) {
@@ -145,8 +144,7 @@ namespace FleetCopterPOC.Controllers
             this.ugcsHandler.updateBatteryLvl(clientId);
             ClientData cd = this.ugcsHandler.clients[clientId].clientData;
             Console.WriteLine(cd.jsonString());
-
-            return cd.jsonString();
+            return createSuccessResponse(cd.jsonString(), "updateData");
         }
 
 

@@ -13,93 +13,53 @@ function PopoverItem(props) {
     const [popoverOpen, setPopoverOpen] = useState(false)
     const intervalRef = useRef()
     const toggle = () => setPopoverOpen(!popoverOpen)
-
-    const [drone1Changed, setDrone1Changed] = useState(false)
-    const [drone2Changed, setDrone2Changed] = useState(false)
-
-    const clientId = (props.droneData && props.droneData.clientId)
-
-    const drone1Alt = (props.droneData &&
-        props.droneData.droneDataArr &&
-        props.droneData.droneDataArr[0] &&
-        props.droneData.droneDataArr[0].altitudeAgl)
-
-    const drone2Alt = (props.droneData &&
-        props.droneData.droneDataArr &&
-        props.droneData.droneDataArr[1] &&
-        props.droneData.droneDataArr[1].altitudeAgl)
-
-    const drone1bat = (props.droneData &&
-        props.droneData.droneDataArr &&
-        props.droneData.droneDataArr[0] &&
-        props.droneData.droneDataArr[0].battery)
-
-    const drone2bat = (props.droneData &&
-        props.droneData.droneDataArr &&
-        props.droneData.droneDataArr[1] &&
-        props.droneData.droneDataArr[1].battery)
-
-    const drone1State = (props.droneData &&
-        props.droneData.droneDataArr &&
-        props.droneData.droneDataArr[0] &&
-        props.droneData.droneDataArr[0].state)
-
-    const drone2State = (props.droneData &&
-        props.droneData.droneDataArr &&
-        props.droneData.droneDataArr[1] &&
-        props.droneData.droneDataArr[1].state)
+    const [drone1Status, setDrone1Status] = useState({ status: "stand by", alt: 0, bat: 0, batteryPathColor: "#a6a6a6", droneTextClicked: false })
+    const [drone2Status, setDrone2Status] = useState({ status: "stand by", alt: 0, bat: 0, batteryPathColor: "#a6a6a6", droneTextClicked: false })
 
 
-    const [drone1Status, setDrone1Status] = useState({ status: (drone1State === "resumeState" || drone1State === "pauseState") ? "airborne" : "stand by", batteryPathColor: (drone1bat <= 20) ? '#4db8ff' : (drone1bat <= 100) ? '#e60000' : "#a6a6a6", droneTextClicked: false, changed: false })
-    const [drone2Status, setDrone2Status] = useState({ status: (drone1State === "resumeState" || drone1State === "pauseState") ? "airborne" : "stand by", batteryPathColor: "#a6a6a6", droneTextClicked: false, changed: false })
-
-    const updatePathColor = (dronenum) => {
-        if (dronenum === 1) {
-            if (drone1bat <= 20) {
-                setDrone1Status({ ...drone1Status, batteryPathColor: '#e60000' })
-            }
-            else if (drone1bat <= 100) { setDrone1Status({ ...drone1Status, batteryPathColor: '#4db8ff' }) }
-            else { setDrone1Status({ ...drone1Status, batteryPathColor: '#a6a6a6' }) }
-        }
-        else if (dronenum === 2) {
-            if (drone2bat <= 20) { setDrone2Status({ ...drone2Status, batteryPathColor: '#e60000' }) }
-            else if (drone2bat <= 100) { setDrone2Status({ ...drone2Status, batteryPathColor: '#4db8ff' }) }
-            else { setDrone2Status({ ...drone2Status, batteryPathColor: '#a6a6a6' }) }
-
-        }
-    }
-    const updateState = (dronenum) => {
-        if (dronenum === 1) {
-            if (drone1State === "resumeState" || drone1State === "pauseState") { setDrone1Status({ ...drone1Status, status: "airborne" }) }
-            else { setDrone1Status({ ...drone1Status, status: "stand by" }) }
-        }
-        else if (dronenum === 2) {
-            if (drone2State === "resumeState" || drone2State === "pauseState") { setDrone2Status({ ...drone2Status, status: "airborne" }) }
-            else { setDrone2Status({ ...drone2Status, status: "stand by" }) }
-        }
-    }
-
-    const fetchAlt = async () => {
-        await props.updateDroneData(props.droneData.clientId);
-        setDrone1Changed(!drone1Changed);
-        setDrone2Changed(!drone2Changed);
+    const updatePathColor = (bat) => {
+        if (bat <= 20)
+            return '#e60000';
+        else if (bat <= 100)
+            return '#4db8ff';
+        else
+            return '#a6a6a6';
     }
 
 
-    //update drones telemetry when new drone data has been fetched frome the server
+    const updateState = (state) => {
+        if (state === "resumeState" || state === "pauseState") 
+            return "airborne"
+        else 
+            return "stand by"
+    }
+
+    const fetchData = async () => {
+        await props.updateDroneData(props.clientId);        
+    }
+
+
     useEffect(() => {
-        updateState(1);
-        updatePathColor(1);
-    }, [drone1Changed])
+        const ndrone1Alt = (props.droneData && props.droneData.droneDataArr && props.droneData.droneDataArr[0] && props.droneData.droneDataArr[0].altitudeAgl)
+        const ndrone2Alt = (props.droneData && props.droneData.droneDataArr && props.droneData.droneDataArr[1] && props.droneData.droneDataArr[1].altitudeAgl)
+        const ndrone1bat = (props.droneData && props.droneData.droneDataArr && props.droneData.droneDataArr[0] && props.droneData.droneDataArr[0].battery)
+        const ndrone2bat = (props.droneData && props.droneData.droneDataArr && props.droneData.droneDataArr[1] && props.droneData.droneDataArr[1].battery)
+        const ndrone1State = (props.droneData && props.droneData.droneDataArr && props.droneData.droneDataArr[0] && props.droneData.droneDataArr[0].state)
+        const ndrone2State = (props.droneData && props.droneData.droneDataArr && props.droneData.droneDataArr[1] && props.droneData.droneDataArr[1].state)
 
+        setDrone1Status({ ...drone1Status, status: updateState(ndrone1State), alt: ndrone1Alt, bat: ndrone1bat, batteryPathColor: updatePathColor(ndrone1bat) })
+        setDrone2Status({ ...drone2Status, status: updateState(ndrone2State,), alt: ndrone2Alt, bat: ndrone2bat, batteryPathColor: updatePathColor(ndrone2bat)})
+    }, [props.changed])
+
+/*
     useEffect(() => {
         updateState(2);
         updatePathColor(2);
     }, [drone2Changed])
-
+    */
     useEffect(() => {
         if (popoverOpen) {
-            intervalRef.current = setInterval(fetchAlt, 1000)
+            intervalRef.current = setInterval(fetchData, 1000)
             setDrone1Status({ ...drone1Status, droneTextClicked: true })
             setDrone2Status({ ...drone2Status, droneTextClicked: true })
         }
@@ -111,9 +71,8 @@ function PopoverItem(props) {
     }, [popoverOpen])
 
     const handleAltInterval = () => {
+        
         props.updateDroneData(props.droneData.clientId)
-        setDrone1Changed(!drone1Changed);
-        setDrone2Changed(!drone2Changed);
         if (drone1Status.droneTextClicked) {//if(!popoverOpen)
             clearInterval(intervalRef.current)
             setDrone1Status({ ...drone1Status, droneTextClicked: false })
@@ -150,11 +109,11 @@ function PopoverItem(props) {
                         <b style={{ marginBottom: "10px" }}> Drone 1:</b>
                         <div style={{ textAlign: "left", marginBottom: "10px", display: 'flex', flexDirection: 'column' }}>
                             <strong>status: {`${drone1Status.status}`}</strong>
-                            <strong>altitude: {`${drone1Alt}`}</strong>
+                            <strong>altitude: {`${drone1Status.alt}`}</strong>
                         </div>
                         <div style={{ width: 80, height: 80 }}>
-                            <CircularProgressbarWithChildren value={drone1bat} styles={buildStyles({ strokeLinecap: 'butt', textSize: '14px', trailColor: '#a6a6a6', pathColor: drone1Status.batteryPathColor, textColor: '#ffffff' })}>
-                                <b style={{ fontSize: "20px" }}>{drone1bat}%</b>
+                            <CircularProgressbarWithChildren value={drone1Status.bat} styles={buildStyles({ strokeLinecap: 'butt', textSize: '14px', trailColor: '#a6a6a6', pathColor: drone1Status.batteryPathColor, textColor: '#ffffff' })}>
+                                <b style={{ fontSize: "20px" }}>{drone1Status.bat}%</b>
                                 <strong>Battery</strong>
                             </CircularProgressbarWithChildren>
                         </div>
@@ -170,11 +129,11 @@ function PopoverItem(props) {
                         <b style={{ marginBottom: "10px" }}>Drone 2:</b>
                         <div style={{ textAlign: "left", marginBottom: "10px", display: 'flex', flexDirection: 'column' }}>
                             <strong>status: {`${drone2Status.status}`}</strong>
-                            <strong>altitude: {`${drone2Alt}`}</strong>
+                            <strong>altitude: {`${drone2Status.alt}`}</strong>
                         </div>
                         <div style={{ width: 80, heights: 80 }}>
-                            <CircularProgressbarWithChildren value={drone2bat} styles={buildStyles({ strokeLinecap: 'butt', textSize: '14px', trailColor: '#a6a6a6', pathColor: drone2Status.batteryPathColor, textColor: '#ffffff' })}>
-                                <b style={{ fontSize: "20px" }}>{drone2bat}%</b>
+                            <CircularProgressbarWithChildren value={drone2Status.bat} styles={buildStyles({ strokeLinecap: 'butt', textSize: '14px', trailColor: '#a6a6a6', pathColor: drone2Status.batteryPathColor, textColor: '#ffffff' })}>
+                                <b style={{ fontSize: "20px" }}>{drone2Status.bat}%</b>
                                 <strong>Battery</strong>
                             </CircularProgressbarWithChildren>
                         </div>
@@ -189,9 +148,11 @@ function PopoverItem(props) {
 const mapStateToProps = state => {
     return {
         loading: state.firstDrone.loading,
+        clientId: state.firstDrone.clientId,
         droneData: state.firstDrone.droneData,
         error: state.firstDrone.error,
-        errMsg: state.firstDrone.errMsg
+        errMsg: state.firstDrone.errMsg,
+        changed: state.firstDrone.changed
     }
 }
 

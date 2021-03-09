@@ -48,15 +48,15 @@ function PlayerButton(props) {
     const clickHandle = () => {
       if(isOnFlight && playerButton )
         //'play-circle' button pressed
-        props.sendDroneResume(props.droneData.clientId,vehicleId)
+        props.sendDroneResume(props.clientId,vehicleId)
           
       else if(isOnFlight && !playerButton)
         //'pause' button pressed
-        props.sendDronePause(props.droneData.clientId,vehicleId)   
+        props.sendDronePause(props.clientId,vehicleId)   
     }
 
     const stopClickHandle = () => {
-        props.sendDroneReturnHome(props.droneData.clientId,vehicleId) 
+        props.sendDroneReturnHome(props.clientId,vehicleId) 
     }
 /*
     const [playerIcon,setPlayerIcon] = useState('play-circle')
@@ -89,7 +89,7 @@ function PlayerButton(props) {
 */
 
     return (
-      <div style={{backgroundColor:"#f2f2f2", marginLeft: "50px", height: "60px", width: "150px", borderColor: "black", borderRadius: "25px", backgroundImage: "linear-gradient(to top, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 100%)"}}>
+        <div style={{ backgroundColor: "#f2f2f2", marginLeft: "50px", height: "60px", width: "150px", borderColor: "black", borderRadius: "25px", backgroundImage: "linear-gradient(to top, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 100%)" }}>
         {
           isOnFlight ?
           (<React.Fragment>
@@ -119,6 +119,7 @@ function PlayerButton(props) {
 const mapStateToProps = state => {
   return {
     loading: state.firstDrone.loading,
+    clientId: state.firstDrone.clientId,
     droneData: state.firstDrone.droneData,
     error: state.firstDrone.error
   }

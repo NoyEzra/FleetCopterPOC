@@ -13,7 +13,6 @@ const initialState = {
 }
 
 const missionButtonsReducer = (state = initialState, acion) => {
-    console.log(state)
     switch(acion.type){
         case SET_FLY_BY: 
             return {

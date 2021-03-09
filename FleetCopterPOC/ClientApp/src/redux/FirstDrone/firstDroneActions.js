@@ -6,6 +6,7 @@ import {
     SEND_DRONE_ERROR } from './firstDroneTypes'
 
 export const sendDroneRequest = () => {
+    console.log("inside send drone req")
     return{
         type: SEND_DRONE_REQUEST
     }
@@ -27,12 +28,15 @@ export const sendDroneError = error => {
 
 export const startConnection = (clientId) => {
     return (dispatch) => {
+        dispatch(sendDroneRequest())
         axios.get(`Ugcs/startConnection/?clientId=${clientId}`)
             .then(response => {
                 const data = response.data;
-                //console.log(data.droneData);
+                console.log("startConnection");
+                console.log(data);
+                console.log(data.droneData);
                 if (data.status === "success") {
-                    //console.log("startConnection calling reducer")
+                    console.log("startConnection finish dispatch")                    
                     dispatch(sendDroneSuccess(data.droneData))
                 }
                 else if (data.status === "error") {
@@ -57,11 +61,22 @@ export const sendDroneMission = (mission, clientId, vehicleId) => {
                 const data = response.data
                 console.log(data)
                 if (data.status === "success") {
-                    //console.log("mission calling reducer")
+                    console.log("mission calling reducer")
+                    console.log(clientId)
                     dispatch(sendDroneSuccess(data.droneData))
                     switch(mission){
                         case 'FlyBy':
                             dispatch(setFlyByState(true));
+                            break;
+                        case 'BeautyShot':
+                            dispatch(setBeautyShotState(true));
+                            break;
+                        case 'CriticalHoles':
+                            dispatch(setCriticalHolesState(true));
+                            break;
+                        case 'PerimSweap':
+                            dispatch(setPerimSweapState(true));
+                            break;
                     }
                 }
                 else if (data.status === "error") {
@@ -147,14 +162,15 @@ export const sendDroneReturnHome = (clientId,vehicleId) => {
 
 export const updateDroneData = (clientId) => {
     return (dispatch) => {
+        dispatch(sendDroneRequest())
         axios.get(`Ugcs/updateDronesData/?clientId=${clientId}`)
             .then(response => {
                 const data = response.data
-                //console.log("updateDronData calling reducer")
-                console.log(data)
-                dispatch(sendDroneSuccess(data))
+                console.log("updateDronData calling reducer")
+                dispatch(sendDroneSuccess(data.droneData))
             })
             .catch(error => {
+                console.log(error);
             })
     }
 }

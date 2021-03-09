@@ -16,13 +16,13 @@ function HomeToolbar(props) {
     const perimSweapInterval = useRef();
 
 
+   
+   
 
     useEffect(() => {
-        props.startConnection(clientId);
-        console.log(props.droneData);
+        props.startConnection(props.clientId);
     }, [current]);
 
-    const clientId = (props.droneData && props.droneData.clientId)
 
     const vehicleId = (props.droneData &&
         props.droneData.droneDataArr && 
@@ -32,7 +32,7 @@ function HomeToolbar(props) {
 
     //-------------------------------FlyBy---------------------------------
     const flyByCheck = () => {
-        const isAvailable = true;
+        const isAvailable = false;
         if (isAvailable) {
             props.setFlyByState(false);
         }
@@ -48,12 +48,12 @@ function HomeToolbar(props) {
     }, [props.flyBy])
 
     async function handleFlyByClick() {
-        props.sendDroneMission('FlyBy', props.droneData.clientId, vehicleId);
+        props.sendDroneMission('FlyBy', props.clientId, vehicleId);
     }
 
     //------------------------------BeautyShot--------------------------------
     const beautyShotCheck = () => {
-        const isAvailable = true;
+        const isAvailable = false;
         if (isAvailable) {
             props.setBeautyShotState(false);
         }
@@ -69,12 +69,12 @@ function HomeToolbar(props) {
     }, [props.beautyShot])
 
     const handleBeautyShotClick = () => {
-        props.sendDroneMission('BeautyShot', clientId, vehicleId)
+        props.sendDroneMission('BeautyShot', props.clientId, vehicleId)
     }
 
     //------------------------------CriticlHoles--------------------------------
     const criticalHolesCheck = () => {
-        const isAvailable = true;
+        const isAvailable = false;
         if (isAvailable) {
             props.setCriticalHolesState(false);
         }
@@ -90,12 +90,12 @@ function HomeToolbar(props) {
     }, [props.criticalHoles])
 
     const handleCriticalHoles = () => {
-        props.sendDroneMission('CriticalHoles', clientId, vehicleId)
+        props.sendDroneMission('CriticalHoles', props.clientId, vehicleId)
     }
 
     //------------------------------PerimSweap--------------------------------
     const perimSweapCheck = () => {
-        const isAvailable = true;
+        const isAvailable = false;
         if (isAvailable) {
             props.setPerimSweapState(false);
         }
@@ -111,13 +111,12 @@ function HomeToolbar(props) {
     }, [props.perimSweap])
 
     const handlePerimSweapClick = () => {
-        props.sendDroneMission('PerimSweap', clientId, vehicleId)
+        props.sendDroneMission('PerimSweap', props.clientId, vehicleId)
     }
 
     //------------------------------HandleAlert------------------------------------
     useEffect(() => {
         if (props.error) {
-            console.log(props.errorMsg);
             props.setAlertOn();
             setTimeout(() => {
                 props.setAlertOff();
@@ -132,10 +131,10 @@ function HomeToolbar(props) {
             <div className="buttonPanel">
                 <img className="logo" src={logo} alt="Logo" />
                 <button className="buttonPanel-btn">Fly To Point</button>
-                <button className="buttonPanel-btn" onClick={handleBeautyShotClick}>Beauty Shot</button>
-                <button className="buttonPanel-btn" onClick={handleFlyByClick} style={{ color: props.flyBy ? '#ff751a' :'white' }}>FlyBy</button>
-                <button className="buttonPanel-btn" onClick={handleCriticalHoles}>Critical Holes</button>
-                <button className="buttonPanel-btn" onClick={handlePerimSweapClick}>Perim Sweep</button>
+                <button className="buttonPanel-btn" onClick={handleBeautyShotClick} style={{ color: props.beautyShot ? '#ff751a' : 'white' }}>Marketing Shot</button>
+                <button className="buttonPanel-btn" onClick={handleFlyByClick} style={{ color: props.flyBy ? '#ff751a' : 'white' }}>FlyBy</button>
+                <button className="buttonPanel-btn" onClick={handleCriticalHoles} style={{ color: props.criticalHoles ? '#ff751a' : 'white' }}>Critical Hole Shots</button>
+                <button className="buttonPanel-btn" onClick={handlePerimSweapClick} style={{ color: props.perimSweap ? '#ff751a' : 'white' }}>Perimeter Sweep</button>
                 <PopoverItem />
             </div>
             {props.alertOn &&
@@ -150,6 +149,7 @@ function HomeToolbar(props) {
 const mapStateToProps = state => {
     return {
         loading: state.firstDrone.loading,
+        clientId: state.firstDrone.clientId,
         droneData: state.firstDrone.droneData,
         error: state.firstDrone.error,
         errMsg: state.firstDrone.errMsg,
