@@ -9,8 +9,11 @@ import { Alert } from '@material-ui/lab';
 function HomeToolbar(props) {
 
     const containerRef = useRef();
-    const intervalRef = useRef();
     const { current } = containerRef;
+    const flyByInterval = useRef();
+    const beautyShotInterval = useRef();
+    const criticalHolesInterval = useRef();
+    const perimSweapInterval = useRef();
 
 
 
@@ -27,55 +30,91 @@ function HomeToolbar(props) {
         props.droneData.droneDataArr[1].vehicleId)
 
 
-    const isDroneAvailable = () => {
-        console.log("inside isDroneAvailable");
-        const isAvailable = false;
+    //-------------------------------FlyBy---------------------------------
+    const flyByCheck = () => {
+        const isAvailable = true;
         if (isAvailable) {
             props.setFlyByState(false);
         }
     }
 
-    const handleInterval = () => {
-        console.log("inside handle interval");
-        intervalRef.current = setInterval(isDroneAvailable, 1000)
-    }
-
     useEffect(() => {
         if (props.flyBy) {
-            handleInterval();
+            flyByInterval.current = setInterval(flyByCheck, 1000);
         }
         else{
-            clearInterval(intervalRef.current);
+            clearInterval(flyByInterval.current);
         }
     }, [props.flyBy])
 
     async function handleFlyByClick() {
         props.sendDroneMission('FlyBy', props.droneData.clientId, vehicleId);
     }
-    /*
-    const handleFlyByClick = async () => {
-        const success = await props.sendDroneMission('FlyBy', props.droneData.clientId, vehicleId) 
-        console.log("inside handle flyby click ");
-        console.log(success);
-        if (success) {
-            console.log("inside handle flyby click success");
-            setFlyByClicked(true)
-            handleInterval();
+
+    //------------------------------BeautyShot--------------------------------
+    const beautyShotCheck = () => {
+        const isAvailable = true;
+        if (isAvailable) {
+            props.setBeautyShotState(false);
         }
-    }*/
+    }
+
+    useEffect(() => {
+        if (props.flyBy) {
+            beautyShotInterval.current = setInterval(beautyShotCheck, 1000);
+        }
+        else {
+            clearInterval(beautyShotInterval.current);
+        }
+    }, [props.beautyShot])
 
     const handleBeautyShotClick = () => {
         props.sendDroneMission('BeautyShot', clientId, vehicleId)
     }
 
+    //------------------------------CriticlHoles--------------------------------
+    const criticalHolesCheck = () => {
+        const isAvailable = true;
+        if (isAvailable) {
+            props.setCriticalHolesState(false);
+        }
+    }
+
+    useEffect(() => {
+        if (props.flyBy) {
+            criticalHolesInterval.current = setInterval(criticalHolesCheck, 1000);
+        }
+        else {
+            clearInterval(criticalHolesInterval.current);
+        }
+    }, [props.criticalHoles])
+
     const handleCriticalHoles = () => {
         props.sendDroneMission('CriticalHoles', clientId, vehicleId)
     }
+
+    //------------------------------PerimSweap--------------------------------
+    const perimSweapCheck = () => {
+        const isAvailable = true;
+        if (isAvailable) {
+            props.setPerimSweapState(false);
+        }
+    }
+
+    useEffect(() => {
+        if (props.flyBy) {
+            perimSweapInterval.current = setInterval(perimSweapCheck, 1000);
+        }
+        else {
+            clearInterval(perimSweapInterval.current);
+        }
+    }, [props.perimSweap])
 
     const handlePerimSweapClick = () => {
         props.sendDroneMission('PerimSweap', clientId, vehicleId)
     }
 
+    //------------------------------HandleAlert------------------------------------
     useEffect(() => {
         if (props.error) {
             console.log(props.errorMsg);
