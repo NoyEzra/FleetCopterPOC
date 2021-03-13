@@ -1,9 +1,12 @@
 import axios from 'axios'
-import {setFlyByState, setBeautyShotState, setPerimSweapState, setCriticalHolesState} from '../MissionButtons/missionButtonsActions'
+import {setFlyByState, setMarketingShotState, setPerimSweapState, setCriticalHolesState} from '../MissionButtons/missionButtonsActions'
 import { 
     SEND_DRONE_REQUEST,
     SEND_DRONE_SUCCESS,
-    SEND_DRONE_ERROR } from './firstDroneTypes'
+    SEND_DRONE_ERROR,
+    DELETE_ERROR
+} from './clientDataTypes'
+
 
 export const sendDroneRequest = () => {
     console.log("inside send drone req")
@@ -23,6 +26,12 @@ export const sendDroneError = error => {
     return{
         type: SEND_DRONE_ERROR,
         payload: error
+    }
+}
+
+export const deleteDroneError = error => {
+    return {
+        type: DELETE_ERROR,
     }
 }
 
@@ -68,8 +77,8 @@ export const sendDroneMission = (mission, clientId, vehicleId) => {
                         case 'FlyBy':
                             dispatch(setFlyByState(true));
                             break;
-                        case 'BeautyShot':
-                            dispatch(setBeautyShotState(true));
+                        case 'MarketingShot':
+                            dispatch(setMarketingShotState(true));
                             break;
                         case 'CriticalHoles':
                             dispatch(setCriticalHolesState(true));
@@ -81,7 +90,7 @@ export const sendDroneMission = (mission, clientId, vehicleId) => {
                 }
                 else if (data.status === "error") {
                     console.log(data)
-                    dispatch(sendDroneError(data))
+                    dispatch(sendDroneError(data.errMsg))
                     return false;
                 }
             })
@@ -106,6 +115,7 @@ export const sendDronePause = (clientId,vehicleId) => {
                 }
                 else if (data.status === "error") {
                     console.log(data);
+                    dispatch(sendDroneError(data.errMsg))
                 }
                 
             })
@@ -129,6 +139,7 @@ export const sendDroneResume = (clientId,vehicleId) => {
                 }
                 else if (data.status === "error") {
                     console.log(data)
+                    dispatch(sendDroneError(data.errMsg))
                 }
             })
             .catch(error => {
@@ -150,6 +161,7 @@ export const sendDroneReturnHome = (clientId,vehicleId) => {
                 }
                 else if (data.status === "error") {
                     console.log(data)
+                    dispatch(sendDroneError(data.errMsg))
                 }
             })
             .catch(error => {
@@ -173,4 +185,42 @@ export const updateDroneData = (clientId) => {
                 console.log(error);
             })
     }
+}
+
+export const isDroneAvailable = (clientId, vehicleId) => {
+    return (dispatch) => {
+        dispatch(sendDroneRequest())
+        axios.get(`Ugcs/isDroneAvailable/?clientId=${clientId}&vehicleId=${vehicleId}`)
+            .then(response => {
+                const data = response.data
+                console.log("isDroneAvailable calling reducer")
+                console.log(data);
+                if (data.status === "success") {
+                    return data.result;
+                }
+                else if (data.status === "error") {
+                    console.log(data)
+                    dispatch(sendDroneError(data.errMsg))
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    }
+}
+
+export const setError = (errMsg) => {
+    console.log("inside setError")
+    return (dispatch) => {
+        dispatch(sendDroneError(errMsg))
+    }
+
+}
+
+export const deleteError = (errMsg) => {
+    console.log("inside unsetError")
+    return (dispatch) => {
+        dispatch(deleteDroneError(errMsg))
+    }
+
 }

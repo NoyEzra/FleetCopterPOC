@@ -39,7 +39,6 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]//Ugcs/startConnection?clientId=20474
         public string startConnection([FromQuery] int clientId)
         {
-            Console.WriteLine("inside start!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             try
             {
@@ -56,7 +55,7 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]//Ugcs/executeMission?clientId=20474&vehicleId=2&mission=FlyBy
         public string executeMission([FromQuery]int clientId, [FromQuery] string mission, [FromQuery] int vehicleId=2)
         {
-            Console.WriteLine("inside mission!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            Console.WriteLine("inside execute mission!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
@@ -66,7 +65,14 @@ namespace FleetCopterPOC.Controllers
                 //int[] viechles = this.ugcsHandler.getVeichledId(clientId);
                 //ClientData c = new ClientData(clientId, viechles[0], viechles[1]);
                 ClientData cd = this.ugcsHandler.clients[clientId].clientData;
-                cd.droneDataArr[1].state = State.resumeState.ToString();
+                int idx = cd.getVehicleIndex(vehicleId);
+                if (idx == -1)
+                {
+                    return createErrorResponse("Commad execution failed", "pause");
+                }
+                Console.WriteLine("idx = " + idx);
+                cd.droneDataArr[idx].state = State.resumeState.ToString();
+                Console.WriteLine(cd.jsonString());
                 return createSuccessResponse(cd.jsonString(), "executeMsg");
             }
             return createErrorResponse("Commad execution failed", "executeMsg");
@@ -76,7 +82,6 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]  //Ugcs/pauseMission?clientId=20474&vehicleId=2
         public string pauseMission([FromQuery]int clientId, [FromQuery] int vehicleId=2)
         {
-            Console.WriteLine("inside pause!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
@@ -86,7 +91,12 @@ namespace FleetCopterPOC.Controllers
                 //int[] viechles = this.ugcsHandler.getVeichledId();
                 //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
                 ClientData cd = this.ugcsHandler.clients[clientId].clientData;
-                cd.droneDataArr[1].state = State.pauseState.ToString();
+                int idx = cd.getVehicleIndex(vehicleId);
+                if(idx == -1)
+                {
+                    return createErrorResponse("Commad execution failed", "pause");
+                }
+                cd.droneDataArr[idx].state = State.pauseState.ToString();
                 return createSuccessResponse(cd.jsonString(), "pause");
             }
             return createErrorResponse("Commad execution failed", "pause");
@@ -96,7 +106,6 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]
         public string resumeMission([FromQuery] int clientId, [FromQuery] int vehicleId = 2)
         {
-            Console.WriteLine("inside resume!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
@@ -107,7 +116,12 @@ namespace FleetCopterPOC.Controllers
                 //int[] viechles = this.ugcsHandler.getVeichledId();
                 //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
                 ClientData cd = this.ugcsHandler.clients[clientId].clientData;
-                cd.droneDataArr[1].state = State.resumeState.ToString();
+                int idx = cd.getVehicleIndex(vehicleId);
+                if (idx == -1)
+                {
+                    return createErrorResponse("Commad execution failed", "pause");
+                }
+                cd.droneDataArr[idx].state = State.resumeState.ToString();
                 return createSuccessResponse(cd.jsonString(), "resume");
             }
             return createErrorResponse("Commad execution failed", "resume");
@@ -117,7 +131,6 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]
         public string returnHomeMission([FromQuery] int clientId, [FromQuery] int vehicleId = 2)
         {
-            Console.WriteLine("inside return!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
@@ -127,7 +140,12 @@ namespace FleetCopterPOC.Controllers
                 //int[] viechles = this.ugcsHandler.getVeichledId();
                 //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
                 ClientData cd = this.ugcsHandler.clients[clientId].clientData;
-                cd.droneDataArr[1].state = State.stopState.ToString();
+                int idx = cd.getVehicleIndex(vehicleId);
+                if (idx == -1)
+                {
+                    return createErrorResponse("Commad execution failed", "pause");
+                }
+                cd.droneDataArr[idx].state = State.stopState.ToString();
                 return createSuccessResponse(cd.jsonString(), "returnHome");
             }
             return createErrorResponse("Commad execution failed", "returnHome");
@@ -136,7 +154,6 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]
         public string updateDronesData([FromQuery] int clientId)
         {
-            Console.WriteLine("update update!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
@@ -148,13 +165,16 @@ namespace FleetCopterPOC.Controllers
         }
 
 
-        public bool isDroneAvailable([FromQuery] int clientId, [FromQuery] int vehicleId)
+        public string isDroneAvailable([FromQuery] int clientId, [FromQuery] int vehicleId)
         {
             this.ugcsHandler = UgcsHandler.Instance;
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
                 clientId = this.ugcsHandler.startConnection();
             //return ugcsHandler.droneAvailable(clientId, vehicleId);
-            return false;
+            JProperty status = new JProperty("status", "success");
+            JProperty dd = new JProperty("result", false);
+            JObject ans = new JObject(status, dd);
+            return ans.ToString();
         }
 
 

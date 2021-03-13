@@ -1,8 +1,9 @@
 import { 
     SEND_DRONE_REQUEST,
     SEND_DRONE_SUCCESS,
-    SEND_DRONE_ERROR
-} from './firstDroneTypes'
+    SEND_DRONE_ERROR,
+    DELETE_ERROR
+} from './clientDataTypes'
 
 
 
@@ -16,7 +17,7 @@ const initialState = {
 }
 
 
-const firstDroneReducer = (state = initialState, acion) => {
+const clientDataReducer = (state = initialState, acion) => {
     console.log(acion)
     switch (acion.type) {
         case SEND_DRONE_REQUEST: 
@@ -45,11 +46,18 @@ const firstDroneReducer = (state = initialState, acion) => {
                 ...state,
                 loading: false,
                 error: true,
-                errMsg: acion.payload.errMsg
+                errMsg: acion.payload
                 
+            }
+        case DELETE_ERROR:
+            return {
+                ...state,
+                loading: false,
+                error: false,
+                errMsg: ''
             }
         default: return state
     }
 }
 
-export default firstDroneReducer
+export default clientDataReducer

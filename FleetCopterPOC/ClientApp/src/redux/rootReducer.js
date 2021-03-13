@@ -1,12 +1,14 @@
 import { combineReducers } from 'redux'
-import firstDroneReducer from './FirstDrone/firstDroneReducer'
+import clientDataReducer from './ClientData/clientDataReducer'
 import alertReducer from './Alert/alertReducer'
 import missionButtonsReducer from './MissionButtons/missionButtonsReducer'
+import activeDronesReducer from './ActiveDrones/activeDronesReducer'
 
 const rootReducer = combineReducers({
-    firstDrone: firstDroneReducer,
+    clientData: clientDataReducer,
     alert: alertReducer,
-    missionButtons: missionButtonsReducer
+    missionButtons: missionButtonsReducer,
+    activeDrones: activeDronesReducer
 })
 
 export default rootReducer

@@ -147,12 +147,12 @@ function PopoverItem(props) {
 
 const mapStateToProps = state => {
     return {
-        loading: state.firstDrone.loading,
-        clientId: state.firstDrone.clientId,
-        droneData: state.firstDrone.droneData,
-        error: state.firstDrone.error,
-        errMsg: state.firstDrone.errMsg,
-        changed: state.firstDrone.changed
+        loading: state.clientData.loading,
+        clientId: state.clientData.clientId,
+        droneData: state.clientData.droneData,
+        error: state.clientData.error,
+        errMsg: state.clientData.errMsg,
+        changed: state.clientData.changed
     }
 }
 

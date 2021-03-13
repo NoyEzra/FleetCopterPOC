@@ -1,15 +1,19 @@
 ﻿import { 
     SET_FLY_BY,
-    SET_BEAUTY_SHOT,
+    SET_MARKETING_SHOT,
     SET_PERIM_SWEAP,
     SET_CRITICAL_HOLES } from './missionButtonsTypes'
 
 
 const initialState = {
     flyBy: false,
-    beautyShot: false,
+    flyByDrone: 1,
+    marketingShot: false,
+    marketingShotDrone: 1,
     perimSweap: false,
+    perimSweapDrone: 1,
     criticalHoles: false,
+    criticalHolesDrone: 1
 }
 
 const missionButtonsReducer = (state = initialState, acion) => {
@@ -17,22 +21,26 @@ const missionButtonsReducer = (state = initialState, acion) => {
         case SET_FLY_BY: 
             return {
                 ...state,
-                flyBy: acion.payload
+                flyBy: acion.payload.state,
+                flyByDrone: acion.payload.drone
             }
-        case SET_BEAUTY_SHOT: 
+        case SET_MARKETING_SHOT: 
             return {
                 ...state,
-                beautyShot: acion.payload
+                marketingShot: acion.payload.state,
+                marketingShotDrone: acion.payload.drone
             }
         case SET_PERIM_SWEAP: 
             return {
                 ...state,
-                perimSweap: acion.payload
+                perimSweap: acion.payload.state,
+                perimSweapDrone: acion.payload.drone
             }
         case SET_CRITICAL_HOLES: 
             return {
                 ...state,
-                criticalHoles: acion.payload
+                criticalHoles: acion.payload,state,
+                criticalHolesDrone: acion.payload.drone
             }
         default: return state
     }

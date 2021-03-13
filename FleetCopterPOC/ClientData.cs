@@ -12,10 +12,9 @@ public class ClientData
 	public ClientData(int clientId, int d1, int d2, int d3)
 	{
 		this.clientId = clientId;
-		droneDataArr = new DroneData[3];
-		droneDataArr[0] = new DroneData(d1);
-		droneDataArr[1] = new DroneData(d2);
-		droneDataArr[2] = new DroneData(d3);
+		droneDataArr = new DroneData[2];
+		droneDataArr[1] = new DroneData(d1);
+		droneDataArr[0] = new DroneData(d2);
 	}
 
 	public string jsonString()
@@ -27,5 +26,20 @@ public class ClientData
     {
 		//change when drone data chenged to dict
         return id == 1 || id == 2;
+    }
+
+	public int getVehicleIndex(int vehicleId)
+    {
+		int idx = -1;
+		for(int i = 0; i < droneDataArr.Length; i++)
+        {
+			if(droneDataArr[i].vehicleId == vehicleId)
+            {
+				idx = i;
+				break;
+            }
+        }
+
+		return idx;
     }
 }

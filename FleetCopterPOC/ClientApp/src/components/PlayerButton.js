@@ -118,10 +118,10 @@ function PlayerButton(props) {
 
 const mapStateToProps = state => {
   return {
-    loading: state.firstDrone.loading,
-    clientId: state.firstDrone.clientId,
-    droneData: state.firstDrone.droneData,
-    error: state.firstDrone.error
+    loading: state.clientData.loading,
+    clientId: state.clientData.clientId,
+    droneData: state.clientData.droneData,
+    error: state.clientData.error
   }
 }
 

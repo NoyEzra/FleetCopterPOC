@@ -96,9 +96,19 @@ namespace FleetCopterPOC
                     System.Console.WriteLine(string.Format("name: {0}; id: {1}; type: {2}",
                            v.Vehicle.Name, v.Vehicle.Id, v.Vehicle.Type.ToString()));
                     vehiclesList.Add(v.Vehicle);
+                    foreach(VehicleParameter vp in v.Vehicle.Profile.Parameters)
+                    {
+                        Console.WriteLine(vp.Type.ToString());
+                        Console.WriteLine(vp.Value);
+                    }
                 }
 
                 Vehicle vehicle1 = task.Value.Objects.FirstOrDefault().Vehicle;
+                if(vehicle1.Profile.Parameters != null && vehicle1.Profile.Parameters.Count != 0)
+                {
+                    Console.WriteLine(vehicle1.Profile.Parameters[12]);
+                }
+                
             }
 
             Client newClient = new Client(clientId, messageExecutor, notificationListener, vehiclesList);
@@ -354,10 +364,9 @@ namespace FleetCopterPOC
                             {
                                 newAlt = 0.0;
                             }
-                            this.clients[clientId].clientData.droneDataArr[notification.Event.TelemetryEvent.Vehicle.Id - 1].altitudeAgl = newAlt;
-                            System.Console.WriteLine(getTelemetryValue(t.Value));
-                            System.Console.WriteLine(t.Value.LongValueSpecified);
-                            System.Console.WriteLine(t.Value.DoubleValueSpecified);
+                            int idx = this.clients[clientId].clientData.getVehicleIndex(notification.Event.TelemetryEvent.Vehicle.Id);
+                            if(idx != -1)
+                                this.clients[clientId].clientData.droneDataArr[idx].altitudeAgl = newAlt;
                         }
                         //System.Console.WriteLine("!!!Vehicle id: {0} Code: {1} Semantic {2} Subsystem {3} Value {4} ToString {5}", notification.Event.TelemetryEvent.Vehicle.Id, t.TelemetryField.Code, t.TelemetryField.Semantic, t.TelemetryField.Subsystem, getTelemetryValue(t.Value), t.TelemetryField.ToString());
                     }
@@ -507,14 +516,14 @@ namespace FleetCopterPOC
             // Get Telemetry for vehicle
 
             DateTime utcTime = DateTime.Now.ToUniversalTime();
-            DateTime posixEpoch = new DateTime(2019, utcTime.Month, utcTime.Day, utcTime.Hour, utcTime.Minute, utcTime.Second, DateTimeKind.Utc);
+            DateTime posixEpoch = new DateTime(2021, utcTime.Month, utcTime.Day, utcTime.Hour, utcTime.Minute, utcTime.Second, DateTimeKind.Utc);
             TimeSpan span = utcTime - posixEpoch;
             var beginningMilliseconds = (long)span.TotalMilliseconds;
             MessageFuture<GetTelemetryResponse> telemetryFuture = messageExecutor.Submit<GetTelemetryResponse>(new GetTelemetryRequest
             {
                 ClientId = clientId,
                 Vehicle = requestedVehicle,
-                Limit = 30,
+                Limit = 0,
                 LimitSpecified = true,
                 ToTimeSpecified = false
             });
@@ -530,23 +539,44 @@ namespace FleetCopterPOC
             foreach (DroneData dd in this.clients[clientId].clientData.droneDataArr)
             {
 
+                Vehicle v = getRequestedVehicle(dd.vehicleId, clientId, messageExecutor);
+                double battery = 0;
+                foreach (VehicleParameter vp in v.Profile.Parameters)
+                {
+                    if(vp.Type.ToString() == "VPT_BATTERY_WEIGHT")
+                    {
+                        battery = 100 * vp.Value; 
+                    }
+                }
+
+                this.clients[clientId].clientData.droneDataArr[0].battery = (int)battery;
+
+                /*
+                Console.WriteLine("inside update bat level");
                 List<Telemetry> telemetryLst = getTelemetryList(clientId, dd.vehicleId, messageExecutor);
-               
+
+                if (dd.vehicleId == 1)
+                {
+                    this.clients[clientId].clientData.droneDataArr[0].battery = 10;
+
+                }
+                else if (dd.vehicleId == 2)
+                {
+                    this.clients[clientId].clientData.droneDataArr[1].battery = 80;
+                }
 
                 bool found = false;
                 int batteryLvl = 0;
-                Console.WriteLine("Start telemetry print==================================================");
-                System.Console.WriteLine("V id = {0}", dd.vehicleId);
+                //Console.WriteLine(telemetryLst.Count);
+                //Console.WriteLine("Start telemetry print==================================================");
+                //System.Console.WriteLine("V id = {0}", dd.vehicleId);
                 foreach (Telemetry t in telemetryLst)
                 {
-                    //if(t.TelemetryField.Code == "TT_BATTERY_VOLTAGE")
-                    //{
+                   
+                    if(t.TelemetryField.Code == "battery_voltage")
+                    {
                         Console.WriteLine(t.TelemetryField.Code);
                         Console.WriteLine(getTelemetryValue(t.Value));
-                    //}
-                    
-                    if(t.TelemetryField.Code == "TT_BATTERY_VOLTAGE")
-                    {
                         found = true;
                         batteryLvl = (int)getTelemetryValue(t.Value);
                         break;
@@ -558,24 +588,7 @@ namespace FleetCopterPOC
                     this.clients[clientId].clientData.droneDataArr[1].battery = batteryLvl;
                     return;
                 }
-                
-
-                /*
-                Console.WriteLine("vehicleId = " + dd.vehicleId + "##################################");
-                foreach (VehicleParameter vp in requestedVehicle.Profile.Parameters)
-                {
-                    Console.WriteLine(vp.Type);
-                    Console.WriteLine(vp.Value);
-                }*/
-                if (dd.vehicleId == 1)
-                {
-                    this.clients[clientId].clientData.droneDataArr[0].battery = 10;
-
-                }
-                else if (dd.vehicleId == 2)
-                {
-                    this.clients[clientId].clientData.droneDataArr[1].battery = 80;
-                }
+               */
 
             }
 
@@ -584,9 +597,9 @@ namespace FleetCopterPOC
 
         public bool droneAvailable(int clientId, int vehicleId)
         {
+            Console.WriteLine("inside drone available");
             List<Telemetry> telemetryLst = getTelemetryList(clientId, vehicleId, this.clients[clientId].messageExecutor);
 
-            bool finished = false;
             bool zeroAglAlt = false;
             bool zeroSpeed = true;
 
