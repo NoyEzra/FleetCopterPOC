@@ -53,14 +53,19 @@ namespace FleetCopterPOC.Controllers
         }
 
         [HttpGet]//Ugcs/executeMission?clientId=20474&vehicleId=2&mission=FlyBy
-        public string executeMission([FromQuery]int clientId, [FromQuery] string mission, [FromQuery] int vehicleId=2)
+        public string executeMission([FromQuery]int clientId, [FromQuery] string mission, [FromQuery] int vehicleId=2, [FromQuery] bool midflight=false )
         {
             Console.WriteLine("inside execute mission!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
                 clientId = this.ugcsHandler.startConnection();
-            if (this.ugcsHandler.handleMission(clientId, "Demo mission.json", vehicleId, mission))
+            bool result = true;
+            if (midflight)
+                result = this.ugcsHandler.handleMissionMidflight(clientId, "Demo mission.json", vehicleId, mission);
+            else
+                result = this.ugcsHandler.handleMission(clientId, "Demo mission.json", vehicleId, mission);
+            if (result)
             {
                 //int[] viechles = this.ugcsHandler.getVeichledId(clientId);
                 //ClientData c = new ClientData(clientId, viechles[0], viechles[1]);

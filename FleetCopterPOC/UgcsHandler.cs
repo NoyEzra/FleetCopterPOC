@@ -427,6 +427,60 @@ namespace FleetCopterPOC
         }
 
 
+        public bool handleMissionMidflight(int clientId, String missionPath, int vehicleId, string action)
+        {
+            if (!checkVehicleId(clientId, vehicleId))
+                return false; //Wrong vehicleId
+            try
+            {
+                Console.WriteLine("inside handleMissionMidflight");
+                MessageExecutor messageExecutor = this.clients[clientId].messageExecutor;
+                NotificationListener notificationListener = this.clients[clientId].notificationListener;
+
+                Mission mission = importMission(missionPath, clientId, messageExecutor);
+                Mission missionFromUcs = getMissionFromServer(mission, clientId, messageExecutor);
+
+                List<Route> routes = missionFromUcs.Routes;
+                Route chosenRoute = null;
+                foreach (Route r in routes)
+                {
+                    if (r.Name == action)
+                    {
+                        chosenRoute = r;
+                        break;
+                    }
+
+                }
+
+                if (chosenRoute == null)
+                {
+                    return false;
+                }
+
+                //add vehicle prfile and mission to route
+                Vehicle requestedVehicle = getRequestedVehicle(vehicleId, clientId, messageExecutor);
+
+
+                chosenRoute.VehicleProfile = requestedVehicle.Profile;
+                chosenRoute.Mission = mission;
+                sendCommandToVehicle(requestedVehicle, "mission_pause", clientId, messageExecutor);
+
+                saveRouteToServer(chosenRoute, clientId, messageExecutor);
+                chosenRoute.ProcessedRoute = processRoute(chosenRoute, clientId, messageExecutor);
+                uplaodRouteToVehice(chosenRoute, requestedVehicle, clientId, messageExecutor);
+                sendCommandToVehicle(requestedVehicle, "auto", clientId, messageExecutor);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
+
+
+
         public bool pauseMission(int clientId, int vehicleId)
         {
             //Return Home Code: return_to_home

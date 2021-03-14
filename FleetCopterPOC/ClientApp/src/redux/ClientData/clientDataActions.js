@@ -9,7 +9,6 @@ import {
 
 
 export const sendDroneRequest = () => {
-    console.log("inside send drone req")
     return{
         type: SEND_DRONE_REQUEST
     }
@@ -63,9 +62,13 @@ export const startConnection = (clientId) => {
 
 
 
-export const sendDroneMission = (mission, clientId, vehicleId) => {
+export const sendDroneMission = (mission, clientId, vehicleId, midflight) => {
+        console.log(clientId)
+        console.log(mission)
+        console.log(vehicleId)
+        console.log(midflight)
     return (dispatch) => {
-        axios.get(`Ugcs/executeMission/?clientId=${clientId}&mission=${mission}&vehicleId=${vehicleId}`)
+        axios.get(`Ugcs/executeMission/?clientId=${clientId}&mission=${mission}&vehicleId=${vehicleId}&midflight=${midflight}`)
             .then(response => {
                 const data = response.data
                 console.log(data)
@@ -193,13 +196,10 @@ export const isDroneAvailable = (clientId, vehicleId) => {
         axios.get(`Ugcs/isDroneAvailable/?clientId=${clientId}&vehicleId=${vehicleId}`)
             .then(response => {
                 const data = response.data
-                console.log("isDroneAvailable calling reducer")
-                console.log(data);
                 if (data.status === "success") {
                     return data.result;
                 }
                 else if (data.status === "error") {
-                    console.log(data)
                     dispatch(sendDroneError(data.errMsg))
                 }
             })
@@ -211,6 +211,7 @@ export const isDroneAvailable = (clientId, vehicleId) => {
 
 export const setError = (errMsg) => {
     console.log("inside setError")
+    console.log(errMsg)
     return (dispatch) => {
         dispatch(sendDroneError(errMsg))
     }

@@ -18,7 +18,6 @@ const initialState = {
 
 
 const clientDataReducer = (state = initialState, acion) => {
-    console.log(acion)
     switch (acion.type) {
         case SEND_DRONE_REQUEST: 
             return {
