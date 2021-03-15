@@ -9,7 +9,6 @@ namespace FleetCopterPOC
     {
         public int vehicleId { get; set; }
         public double altitudeAgl { get; set; }
-
         public int battery { get; set; }
         public VehicleTelemetry(int id)
         {

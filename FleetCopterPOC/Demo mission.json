@@ -6,6 +6,21 @@
     "component" : "DATABASE"
   },
   "payloadProfiles" : [ {
+    "name" : "DJI Mavic PRO camera",
+    "payloadType" : "CAMERA",
+    "imageKey" : "dji_mavic_pro",
+    "parameters" : {
+      "weight" : 0.3,
+      "frequency" : 0.0,
+      "power" : 0.0,
+      "trueFocalLength" : 0.005,
+      "sensorWidth" : 0.0062,
+      "sensorHeight" : 0.00465,
+      "sensorHorizontalPixels" : 4000.0,
+      "sensorVerticalPixels" : 3000.0,
+      "minTriggeringInterval" : 3.0
+    }
+  }, {
     "name" : "GoPro Hero3 Black Edition",
     "payloadType" : "CAMERA",
     "imageKey" : "gopro_hero_3",
@@ -79,8 +94,78 @@
       "maxRangefinderDistance" : null,
       "minDistanceBetweenWaypoint" : null
     }
+  }, {
+    "name" : "DJI Mavic PRO",
+    "vehicleType" : "MULTICOPTER",
+    "modelKey" : "default",
+    "imageKey" : "default",
+    "platformCode" : "DjiMavicPro",
+    "primary" : true,
+    "payloadProfiles" : [ "DJI Mavic PRO camera" ],
+    "parameters" : {
+      "height" : 0.083,
+      "width" : 0.335,
+      "length" : 0.335,
+      "maxClimbRate" : 5.0,
+      "maxHorizontalSpeed" : 15.0,
+      "maxAltitude" : 5000.0,
+      "maxWaypoints" : 99.0,
+      "maxFlightTime" : 1620.0,
+      "windResistance" : 10.0,
+      "dryTakeoffWeight" : 0.734,
+      "maxTakeoffWeight" : 0.743,
+      "batteryWeight" : 0.24,
+      "chargedBatteryVoltage" : 11.4,
+      "dischargedBatteryVoltage" : 9.5,
+      "normalBatteryVoltage" : 10.5,
+      "lowBatteryVoltage" : 10.0,
+      "lowGpsSatellites" : 7.0,
+      "normalGpsSatellites" : 9.0,
+      "safeDistanceToTerrain" : 5.0,
+      "safeDistanceToObstacle" : 20.0,
+      "waypointAcceptanceRadius" : 2.0,
+      "fenceRadius" : 500.0,
+      "fenceAltitude" : 150.0,
+      "lowTelemetryLevel" : 50.0,
+      "normalTelemetryLevel" : 70.0,
+      "defaultClimbRate" : 2.0,
+      "defaultDescentRate" : 1.0,
+      "glideSlope" : null,
+      "defaultHorizontalSpeed" : 5.0,
+      "landingGroundSpeed" : null,
+      "maxAltitudeAgl" : 120.0,
+      "landingFlareAltitude" : null,
+      "landingFlareTime" : null,
+      "minLandingPitch" : null,
+      "landingFlareDamp" : null,
+      "landingApproachAirspeed" : null,
+      "landingSpeedWeighting" : null,
+      "maxAutoFlightPitch" : null,
+      "maxPitch" : null,
+      "minThrottle" : null,
+      "landingSinkRate" : null,
+      "landingRangefinderEnabled" : null,
+      "minRangefinderDistance" : null,
+      "maxDescentRate" : 3.0,
+      "lowBatteryPowerLevel" : 30.0,
+      "normalBatteryPowerLevel" : 40.0,
+      "maxRangefinderDistance" : null,
+      "minDistanceBetweenWaypoint" : 0.5
+    }
   } ],
   "vehicles" : [ {
+    "name" : "MavicPRO-0k1cg7mraj08xm",
+    "vehicleId" : 1275397292,
+    "icaoAddress" : null,
+    "tailNumber" : null,
+    "type" : "MULTICOPTER",
+    "platformCode" : "DjiMavicPro",
+    "profile" : "DJI Mavic PRO",
+    "emulator" : false,
+    "serialNumber" : "0k1cg7mraj08xm",
+    "port" : null,
+    "source" : "VSM"
+  }, {
     "name" : "EMU-101",
     "vehicleId" : 3518325117,
     "icaoAddress" : null,
@@ -98,7 +183,7 @@
     "description" : null,
     "creationTime" : 1501144514756,
     "routes" : [ {
-      "name" : "Ganei Tikva",
+      "name" : "FlyBy",
       "creationTime" : 1609088377260,
       "scheduledTime" : 1609065347708,
       "startDelay" : 0.0,
@@ -216,7 +301,7 @@
       } ],
       "takeoffHeight" : null
     }, {
-      "name" : "Simulation Route1",
+      "name" : "BeautyShot",
       "creationTime" : 1609752073010,
       "scheduledTime" : 1609752069004,
       "startDelay" : 0.0,
@@ -224,8 +309,8 @@
       "trajectoryType" : "STRAIGHT",
       "safeAltitude" : 50.0,
       "maxAltitude" : 120.0,
-      "initialSpeed" : null,
-      "maxSpeed" : null,
+      "initialSpeed" : 0.0,
+      "maxSpeed" : 0.0,
       "failsafes" : {
         "rcLost" : "GO_HOME",
         "gpsLost" : "WAIT",
@@ -298,7 +383,7 @@
       } ],
       "takeoffHeight" : 30.0
     }, {
-      "name" : "Simulation Rout2",
+      "name" : "CriticalHoles",
       "creationTime" : 1609764101922,
       "scheduledTime" : 1609764097775,
       "startDelay" : 0.0,
@@ -306,8 +391,8 @@
       "trajectoryType" : "STRAIGHT",
       "safeAltitude" : 50.0,
       "maxAltitude" : 120.0,
-      "initialSpeed" : null,
-      "maxSpeed" : null,
+      "initialSpeed" : 0.0,
+      "maxSpeed" : 0.0,
       "failsafes" : {
         "rcLost" : "GO_HOME",
         "gpsLost" : "WAIT",
@@ -411,7 +496,89 @@
         }
       } ],
       "takeoffHeight" : 30.0
+    }, {
+      "name" : "PerimSweap",
+      "creationTime" : 1613219963405,
+      "scheduledTime" : 1613219955843,
+      "startDelay" : 0.0,
+      "vehicleProfile" : "Quadcopter Emulator",
+      "trajectoryType" : "STRAIGHT",
+      "safeAltitude" : 50.0,
+      "maxAltitude" : 120.0,
+      "initialSpeed" : null,
+      "maxSpeed" : null,
+      "failsafes" : {
+        "rcLost" : "GO_HOME",
+        "gpsLost" : "WAIT",
+        "lowBattery" : "LAND",
+        "datalinkLost" : "GO_HOME"
+      },
+      "checkAerodromeNfz" : true,
+      "checkCustomNfz" : true,
+      "segments" : [ {
+        "type" : "TakeOff",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595844183493774,
+          "longitude" : 0.6088166963079026,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.559588694478669,
+          "longitude" : 0.6088278093505016,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Waypoint",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595934496103272,
+          "longitude" : 0.6088287582329097,
+          "altitude" : 50.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "speed" : 5.0,
+          "wpTurnType" : "STOP_AND_TURN",
+          "altitudeType" : "AGL"
+        }
+      }, {
+        "type" : "Landing",
+        "actions" : [ ],
+        "point" : {
+          "latitude" : 0.5595914301587248,
+          "longitude" : 0.6088219485282941,
+          "altitude" : 0.0,
+          "altitudeType" : "AGL"
+        },
+        "parameters" : {
+          "avoidObstacles" : true,
+          "avoidTerrain" : true,
+          "altitudeType" : "AGL"
+        }
+      } ],
+      "takeoffHeight" : 30.0
     } ],
-    "vehicles" : [ "EMU-101" ]
+    "vehicles" : [ "EMU-101", "MavicPRO-0k1cg7mraj08xm" ]
   }
 }
