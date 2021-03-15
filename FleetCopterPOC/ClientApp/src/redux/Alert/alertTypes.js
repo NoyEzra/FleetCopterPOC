@@ -1,2 +1,4 @@
-export const SET_ALERT_ON = 'SET_ALERT_ON'
-export const SET_ALERT_OFF = 'SET_ALERT_OFF'
+export const SET_ALERT_ERR_ON = 'SET_ALERT_ERR_ON'
+export const SET_ALERT_ERR_OFF = 'SET_ALERT_ERR_OFF'
+export const SET_ALERT_INF_ON = 'SET_ALERT_INF_ON'
+export const SET_ALERT_INF_OFF = 'SET_ALERT_INF_OFF'

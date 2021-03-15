@@ -1,20 +1,38 @@
 import { 
-    SET_ALERT_ON,
-    SET_ALERT_OFF } from './alertTypes'
+    SET_ALERT_ERR_ON,
+    SET_ALERT_ERR_OFF,
+    SET_ALERT_INF_ON,
+    SET_ALERT_INF_OFF
+} from './alertTypes'
 
 const initialState = {
-    alertOn: false
+    alertErrOn: false,
+    errMsg: '',
+    alertInfOn: false,
+    infMsg: ''
 }
 
 const alertReducer = (state=initialState,acion) => {
     switch(acion.type){
-        case SET_ALERT_ON: 
+        case SET_ALERT_ERR_ON: 
             return {
-                alertOn: true
+                alertErrOn: true,
+                errMsg: acion.msg
             }
-        case SET_ALERT_OFF:
+        case SET_ALERT_ERR_OFF:
             return {
-                alertOn: false  
+                alertErrOn: false,
+                errMsg: ''
+            }
+        case SET_ALERT_INF_ON:
+            return {
+                alertInfOn: true,
+                infMsg: acion.msg
+            }
+        case SET_ALERT_INF_OFF:
+            return {
+                alertInfOn: false,
+                infMsg: ''
             }
         default: return state
     }

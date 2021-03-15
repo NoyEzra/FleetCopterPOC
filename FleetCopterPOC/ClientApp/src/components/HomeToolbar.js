@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef} from 'react'
 import { connect } from 'react-redux'
 import logo from '../images/logo.png';
-import { sendDroneMission, startConnection, isDroneAvailable, setError, deleteError, setAlertOn, setAlertOff, setFlyByState, setMarketingShotState, setCriticalHolesState, setPerimSweapState, activateDrone1, deactivateDrone1, activateDrone2, deactivateDrone2 } from '../redux';
+import { sendDroneMission, startConnection, isDroneAvailable, setAlertOn, setAlertOff, setFlyByState, setMarketingShotState, setCriticalHolesState, setPerimSweapState, activateDrone1, deactivateDrone1, activateDrone2, deactivateDrone2 } from '../redux';
 import PopoverItem from './PopoverItem'
 import { Alert } from '@material-ui/lab'
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Input, Label } from 'reactstrap';
@@ -40,16 +40,19 @@ function HomeToolbar(props) {
         if ((props.drone1Id != 0) && (props.drone2Id != 0)) { //no available drone
             //props.setError("There is currently no available drone")
             if ((props.drone1Mission == mission) || (props.drone2Mission == mission)) { //one of the drone already perform the mission
-                props.setError(`There is already a drone who perform ${mission} mission`);
+                props.setAlertOn(true, `There is already a drone that performs ${mission} mission`);
             }
             else if ((props.drone1Mission == "PerimSweap") || (props.drone2Mission == "PerimSweap")) { //one of the drones perform perimSweap - automatically switch mission
                 var chosen = (props.drone1Mission == "PerimSweap") ? 1 : 2;
                 if (chosen == 1) {
                     handleMissionExecution(chosen, props.drone1Id, props.drone1Idx, mission);
+                    props.setAlertOn(false, `Drone 1 mission changed from Perimeter Sweep to ${mission}`);
                 }
-                {
+                else{
                     handleMissionExecution(chosen, props.drone2Id, props.drone2Idx, mission);
+                    props.setAlertOn(false, `Drone 2 mission changed from Perimeter Sweep to ${mission}`);
                 }
+
 
                 //TODO: check if the switch succeded
                 props.setPerimSweapState(false);
@@ -60,10 +63,7 @@ function HomeToolbar(props) {
         }
         else {
             var chosen = (props.drone1Id == 0) ? 1 : 2; // chosen = available drone
-            console.log(chosen)
-            console.log(props.droneData)
             for (var i = 0; i < props.droneData.droneDataArr.length; i++) {
-                console.log(props.droneData.droneDataArr[i].vehicleId)
                 if (props.droneData.droneDataArr[i].state == "stopState") {
                     handleMissionExecution(chosen, props.droneData.droneDataArr[i].vehicleId, i, mission);
                     break;
@@ -177,18 +177,6 @@ function HomeToolbar(props) {
         handleMissionClick("PerimSweap");
     }
 
-    //------------------------------HandleAlert------------------------------------
-    useEffect(() => {
-        if (props.error) {
-            props.setAlertOn();
-            setTimeout(() => {
-                props.setAlertOff();
-                console.log(props.errMsg)
-                props.deleteError();
-            }, 5000);
-        }
-    }, [props.error])
-
 
     //------------------------------HandlePopup------------------------------------ 
     const toggle = () => {
@@ -196,11 +184,8 @@ function HomeToolbar(props) {
     }
 
     const handlePopup = () => {
-        console.log("inside handle popup");
-        console.log(popupData);
         const rbs = document.querySelectorAll('input[name="radio1"]');
         let selectedDrone;
-        console.log(typeof rbs)
         for(var i = 0; i < rbs.length; i++){
             let rb = rbs[i];
             if(rb.checked){
@@ -215,7 +200,6 @@ function HomeToolbar(props) {
             return;
         }
          
-        console.log(selectedDrone);
         let prevMission;
         //activate drone again to change the mission and sent execute mission midflight request
         if (selectedDrone == 1) {
@@ -247,9 +231,28 @@ function HomeToolbar(props) {
                 break;
         }
 
+        props.setAlertOn(false, `Drone ${selectedDrone} mission changed from ${prevMission} Sweep to ${popupData.mission}`);
 
         toggle();
     }
+
+
+    //------------------------------HandleAlerts------------------------------------
+    useEffect(() => {
+        if (props.alertErrOn) {
+            setTimeout(() => {
+                props.setAlertOff(true);
+            }, 5000);
+        }
+    }, [props.alertErrOn])
+
+    useEffect(() => {
+        if (props.alertInfOn) {
+            setTimeout(() => {
+                props.setAlertOff(false);
+            }, 5000);
+        }
+    }, [props.alertInfOn])
 
     //----------------------------------------------------------------------------------
     //----------------------------------------------------------------------------------
@@ -264,8 +267,11 @@ function HomeToolbar(props) {
                 <button className="buttonPanel-btn" onClick={handlePerimSweapClick} style={{ color: props.perimSweap ? '#ff751a' : 'white' }}>Perimeter Sweep</button>
                 <PopoverItem />
             </div>
-            {props.alertOn &&
-                <Alert severity="error" style={{ color: 'black' }}>{props.errMsg}</Alert>
+            {props.alertErrOn &&
+                <Alert severity="error" style={{ color: 'black' }}>{`${props.errMsg}`}</Alert>
+            }
+            {props.alertInfOn &&
+                <Alert severity="info" style={{ color: 'black' }}>{`${props.infMsg}`}</Alert>
             }
             <Modal isOpen={popupData.open} toggle={toggle}>
                 <ModalHeader toggle={toggle}>There is currently no available drone</ModalHeader>
@@ -301,11 +307,12 @@ const mapStateToProps = state => {
         loading: state.clientData.loading,
         clientId: state.clientData.clientId,
         droneData: state.clientData.droneData,
-        error: state.clientData.error,
-        errMsg: state.clientData.errMsg,
 
-        alertOn: state.alert.alertOn,
-
+        alertErrOn: state.alert.alertErrOn,
+        errMsg: state.alert.errMsg,
+        alertInfOn: state.alert.alertInfOn,
+        infMsg: state.alert.infMsg,
+            
         flyBy: state.missionButtons.flyBy,
         flyByDrone: state.missionButtons.flyByDrone,
         marketingShot: state.missionButtons.MarketingShot,
@@ -330,11 +337,9 @@ const mapDispatchToProps = dispatch => {
         sendDroneMission: (cId, vId, mission, midflight) => dispatch(sendDroneMission(cId, vId, mission, midflight)),
         startConnection: (cId) => dispatch(startConnection(cId)),
         isDroneAvailable: (clientId, vehicleId) => dispatch(isDroneAvailable(clientId, vehicleId)),
-        setError: (errMsg) => dispatch(setError(errMsg)),
-        deleteError: () => dispatch(deleteError()),
 
-        setAlertOn: () => dispatch(setAlertOn()), 
-        setAlertOff: () => dispatch(setAlertOff()),
+        setAlertOn: (err, msg) => dispatch(setAlertOn(err, msg)), 
+        setAlertOff: (err) => dispatch(setAlertOff(err)),
 
         setFlyByState: (bState) => dispatch(setFlyByState(bState)),
         setMarketingShotState: (bState) => dispatch(setMarketingShotState(bState)),

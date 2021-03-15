@@ -39,7 +39,7 @@ const missionButtonsReducer = (state = initialState, acion) => {
         case SET_CRITICAL_HOLES: 
             return {
                 ...state,
-                criticalHoles: acion.payload,state,
+                criticalHoles: acion.payload.state,
                 criticalHolesDrone: acion.payload.drone
             }
         default: return state
