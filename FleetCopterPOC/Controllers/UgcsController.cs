@@ -55,33 +55,38 @@ namespace FleetCopterPOC.Controllers
         [HttpGet]//Ugcs/executeMission?clientId=20474&vehicleId=2&mission=FlyBy
         public string executeMission([FromQuery]int clientId, [FromQuery] string mission, [FromQuery] int vehicleId=2, [FromQuery] bool midflight=false )
         {
-            Console.WriteLine("inside execute mission!!!!!");
             this.ugcsHandler = UgcsHandler.Instance;
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
                 clientId = this.ugcsHandler.startConnection();
-            bool result = true;
-            if (midflight)
-                result = this.ugcsHandler.handleMissionMidflight(clientId, "Demo mission.json", vehicleId, mission);
-            else
-                result = this.ugcsHandler.handleMission(clientId, "Demo mission.json", vehicleId, mission);
-            if (result)
+            try
             {
-                //int[] viechles = this.ugcsHandler.getVeichledId(clientId);
-                //ClientData c = new ClientData(clientId, viechles[0], viechles[1]);
-                ClientData cd = this.ugcsHandler.clients[clientId].clientData;
-                int idx = cd.getVehicleIndex(vehicleId);
-                if (idx == -1)
+                bool result = true;
+                if (midflight)
+                    result = this.ugcsHandler.handleMissionMidflight(clientId, "Demo mission.json", vehicleId, mission);
+                else
+                    result = this.ugcsHandler.handleMission(clientId, "Demo mission.json", vehicleId, mission);
+                if (result)
                 {
-                    return createErrorResponse("Commad execution failed", "pause");
+                    //int[] viechles = this.ugcsHandler.getVeichledId(clientId);
+                    //ClientData c = new ClientData(clientId, viechles[0], viechles[1]);
+                    ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+                    int idx = cd.getVehicleIndex(vehicleId);
+                    if (idx == -1)
+                    {
+                        return createErrorResponse("Commad execution failed", "pause");
+                    }
+                    Console.WriteLine("idx = " + idx);
+                    cd.droneDataArr[idx].state = State.resumeState.ToString();
+                    Console.WriteLine(cd.jsonString());
+                    return createSuccessResponse(cd.jsonString(), "executeMsg");
                 }
-                Console.WriteLine("idx = " + idx);
-                cd.droneDataArr[idx].state = State.resumeState.ToString();
-                Console.WriteLine(cd.jsonString());
-                return createSuccessResponse(cd.jsonString(), "executeMsg");
+                return createErrorResponse("Commad execution failed", "executeMsg");
             }
-            return createErrorResponse("Commad execution failed", "executeMsg");
-
+            catch (Exception e)
+            {
+                return createErrorResponse("Commad execution failed", "executeMsg");
+            }
         }
 
         [HttpGet]  //Ugcs/pauseMission?clientId=20474&vehicleId=2
@@ -91,21 +96,27 @@ namespace FleetCopterPOC.Controllers
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
                 clientId = this.ugcsHandler.startConnection();
-            if (this.ugcsHandler.pauseMission(clientId, vehicleId))
+            try
             {
-                //int[] viechles = this.ugcsHandler.getVeichledId();
-                //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                ClientData cd = this.ugcsHandler.clients[clientId].clientData;
-                int idx = cd.getVehicleIndex(vehicleId);
-                if(idx == -1)
+                if (this.ugcsHandler.pauseMission(clientId, vehicleId))
                 {
-                    return createErrorResponse("Commad execution failed", "pause");
+                    //int[] viechles = this.ugcsHandler.getVeichledId();
+                    //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                    ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+                    int idx = cd.getVehicleIndex(vehicleId);
+                    if (idx == -1)
+                    {
+                        return createErrorResponse("Commad execution failed", "pause");
+                    }
+                    cd.droneDataArr[idx].state = State.pauseState.ToString();
+                    return createSuccessResponse(cd.jsonString(), "pause");
                 }
-                cd.droneDataArr[idx].state = State.pauseState.ToString();
-                return createSuccessResponse(cd.jsonString(), "pause");
+                return createErrorResponse("Commad execution failed", "pause");
             }
-            return createErrorResponse("Commad execution failed", "pause");
-
+            catch (Exception e)
+            {
+                return createErrorResponse("Commad execution failed", "executeMsg");
+            }
         }
 
         [HttpGet]
@@ -116,20 +127,27 @@ namespace FleetCopterPOC.Controllers
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
                 Console.WriteLine("firstConnection");
                 clientId = this.ugcsHandler.startConnection();
-            if (this.ugcsHandler.resumeMission(clientId, vehicleId))
+            try
             {
-                //int[] viechles = this.ugcsHandler.getVeichledId();
-                //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                ClientData cd = this.ugcsHandler.clients[clientId].clientData;
-                int idx = cd.getVehicleIndex(vehicleId);
-                if (idx == -1)
+                if (this.ugcsHandler.resumeMission(clientId, vehicleId))
                 {
-                    return createErrorResponse("Commad execution failed", "pause");
+                    //int[] viechles = this.ugcsHandler.getVeichledId();
+                    //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                    ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+                    int idx = cd.getVehicleIndex(vehicleId);
+                    if (idx == -1)
+                    {
+                        return createErrorResponse("Commad execution failed", "pause");
+                    }
+                    cd.droneDataArr[idx].state = State.resumeState.ToString();
+                    return createSuccessResponse(cd.jsonString(), "resume");
                 }
-                cd.droneDataArr[idx].state = State.resumeState.ToString();
-                return createSuccessResponse(cd.jsonString(), "resume");
+                return createErrorResponse("Commad execution failed", "resume");
             }
-            return createErrorResponse("Commad execution failed", "resume");
+            catch (Exception e)
+            {
+                return createErrorResponse("Commad execution failed", "executeMsg");
+            }
 
         }
 
@@ -140,20 +158,27 @@ namespace FleetCopterPOC.Controllers
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
                 clientId = this.ugcsHandler.startConnection();
-            if (this.ugcsHandler.returnHomeMission(clientId, vehicleId))
+            try
             {
-                //int[] viechles = this.ugcsHandler.getVeichledId();
-                //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
-                ClientData cd = this.ugcsHandler.clients[clientId].clientData;
-                int idx = cd.getVehicleIndex(vehicleId);
-                if (idx == -1)
+                if (this.ugcsHandler.returnHomeMission(clientId, vehicleId))
                 {
-                    return createErrorResponse("Commad execution failed", "pause");
+                    //int[] viechles = this.ugcsHandler.getVeichledId();
+                    //ClientData c = new ClientData(this.ugcsHandler.clientId, viechles[0], viechles[1]);
+                    ClientData cd = this.ugcsHandler.clients[clientId].clientData;
+                    int idx = cd.getVehicleIndex(vehicleId);
+                    if (idx == -1)
+                    {
+                        return createErrorResponse("Commad execution failed", "pause");
+                    }
+                    cd.droneDataArr[idx].state = State.stopState.ToString();
+                    return createSuccessResponse(cd.jsonString(), "returnHome");
                 }
-                cd.droneDataArr[idx].state = State.stopState.ToString();
-                return createSuccessResponse(cd.jsonString(), "returnHome");
+                return createErrorResponse("Commad execution failed", "returnHome");
             }
-            return createErrorResponse("Commad execution failed", "returnHome");
+            catch (Exception e)
+            {
+                return createErrorResponse("Commad execution failed", "executeMsg");
+            }
         }
 
         [HttpGet]
