@@ -4,6 +4,7 @@ import HomeToolbar from './components/HomeToolbar';
 import background from './images/background.png';
 import './custom.css'
 import PlayerButton from './components/PlayerButton';
+import GoogleMap from './components/GoogleMap';
 import store from './redux/store'
 
 
@@ -14,8 +15,9 @@ export default class App extends Component {
   render () {
     return (
         <Provider store={store}>
-            <div className="mainDiv" style={{ backgroundImage: `url(${background})`, backgroundRepeat: 'no-repeat', backgroundSize:'1200px 600px' }}>
+            <div className="mainDiv">
                 <HomeToolbar />
+                <GoogleMap />
                 <div style={{ position: 'absolute', bottom: '10px'}}>
                     <PlayerButton />                
                 </div>

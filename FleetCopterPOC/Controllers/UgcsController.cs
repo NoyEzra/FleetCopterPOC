@@ -188,7 +188,7 @@ namespace FleetCopterPOC.Controllers
             //upon first connection
             if (clientId == 0 || !ugcsHandler.clients.ContainsKey(clientId))
                 clientId = this.ugcsHandler.startConnection();
-            this.ugcsHandler.updateBatteryLvl(clientId);
+            this.ugcsHandler.updateDroneData(clientId);
             ClientData cd = this.ugcsHandler.clients[clientId].clientData;
             Console.WriteLine(cd.jsonString());
             return createSuccessResponse(cd.jsonString(), "updateData");

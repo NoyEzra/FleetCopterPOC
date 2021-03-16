@@ -73,9 +73,9 @@ function HomeToolbar(props) {
     }
 
     //-------------------------------FlyBy---------------------------------
-    const flyByCheck = () => {
+    const flyByCheck = async () => {
         const vId = (props.flyBy == 1) ? props.activateDrone1 : props.activateDrone2;
-        const isAvailable = props.isDroneAvailable(props.clientId, vId);
+        const isAvailable = await props.isDroneAvailable(props.clientId, vId);
         if (isAvailable) {
             props.setFlyByState(false);
         }
@@ -99,9 +99,9 @@ function HomeToolbar(props) {
     }
 
     //------------------------------MarketingShot--------------------------------
-    const marketingShotCheck = () => {
+    const marketingShotCheck = async () => {
         const vId = (props.marketingShot == 1) ? props.activateDrone1 : props.activateDrone2;
-        const isAvailable = props.isDroneAvailable(props.clientId, vId);
+        const isAvailable = await props.isDroneAvailable(props.clientId, vId);
         if (isAvailable) {
             props.setMarketingShotState(false);
         }
@@ -125,9 +125,9 @@ function HomeToolbar(props) {
     }
 
     //------------------------------CriticlHoles--------------------------------
-    const criticalHolesCheck = () => {
+    const criticalHolesCheck = async () => {
         const vId = (props.criticalHoles == 1) ? props.activateDrone1 : props.activateDrone2;
-        const isAvailable = props.isDroneAvailable(props.clientId, vId);
+        const isAvailable = await props.isDroneAvailable(props.clientId, vId);
         if (isAvailable) {
             props.setCriticalHolesState(false);
         }
@@ -151,10 +151,10 @@ function HomeToolbar(props) {
     }
 
     //------------------------------PerimSweap--------------------------------
-    const perimSweapCheck = () => {
+    const perimSweapCheck = async () => {
 
         const vId = (props.perimSweapDrone == 1)? props.activateDrone1 : props.activateDrone2;
-        const isAvailable = props.isDroneAvailable(props.clientId, vId); //send a req to server to see of perimSweapDrone using drone2idx is available!!
+        const isAvailable = await props.isDroneAvailable(props.clientId, vId); //send a req to server to see of perimSweapDrone using drone2idx is available!!
         if (isAvailable) {
             props.setPerimSweapState(false);
         }

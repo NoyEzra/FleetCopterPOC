@@ -13,6 +13,8 @@ public class DroneData
 	public int vehicleId { get; set; }
     public string state { get; set; }
 	public double altitudeAgl { get; set; }
+	public double latitude { get; set; }
+	public double longitude { get; set; }
 	public int battery { get; set; }
 	public bool isAvailable { get; set; }
 	public bool isOnPerimeter { get; set; }
@@ -25,6 +27,8 @@ public class DroneData
 		this.battery = 0;
 		this.isAvailable = true;
 		this.isOnPerimeter = false;
+		this.latitude = 0.0;
+		this.longitude = 0.0;
 	}
 
 	public string jsonString()

@@ -367,6 +367,18 @@ namespace FleetCopterPOC
                             int idx = this.clients[clientId].clientData.getVehicleIndex(notification.Event.TelemetryEvent.Vehicle.Id);
                             if(idx != -1)
                                 this.clients[clientId].clientData.droneDataArr[idx].altitudeAgl = newAlt;
+                        } else if (t.TelemetryField.Code == "latitude" && this.clients[clientId].clientData.validDrone(notification.Event.TelemetryEvent.Vehicle.Id) && t.Value != null)
+                        {
+                            double newLat = Math.Round((double)getTelemetryValue(t.Value) * (180.0 / Math.PI), 7);
+                            int idx = this.clients[clientId].clientData.getVehicleIndex(notification.Event.TelemetryEvent.Vehicle.Id);
+                            if (idx != -1)
+                                this.clients[clientId].clientData.droneDataArr[idx].latitude = newLat;
+                        } else if (t.TelemetryField.Code == "longitude" && this.clients[clientId].clientData.validDrone(notification.Event.TelemetryEvent.Vehicle.Id) && t.Value != null)
+                        {
+                            double newLng = Math.Round((double)getTelemetryValue(t.Value) * (180.0 / Math.PI), 7);
+                            int idx = this.clients[clientId].clientData.getVehicleIndex(notification.Event.TelemetryEvent.Vehicle.Id);
+                            if (idx != -1)
+                                this.clients[clientId].clientData.droneDataArr[idx].longitude = newLng;
                         }
                         //System.Console.WriteLine("!!!Vehicle id: {0} Code: {1} Semantic {2} Subsystem {3} Value {4} ToString {5}", notification.Event.TelemetryEvent.Vehicle.Id, t.TelemetryField.Code, t.TelemetryField.Semantic, t.TelemetryField.Subsystem, getTelemetryValue(t.Value), t.TelemetryField.ToString());
                     }
@@ -587,7 +599,7 @@ namespace FleetCopterPOC
             return telemetryResp.Telemetry;
         }
 
-        public void updateBatteryLvl(int clientId)
+        public void updateDroneData(int clientId)
         {
             MessageExecutor messageExecutor = this.clients[clientId].messageExecutor;
             foreach (DroneData dd in this.clients[clientId].clientData.droneDataArr)
@@ -602,6 +614,7 @@ namespace FleetCopterPOC
                         battery = 100 * vp.Value; 
                     }
                 }
+                
 
                 this.clients[clientId].clientData.droneDataArr[0].battery = (int)battery;
 
@@ -645,6 +658,16 @@ namespace FleetCopterPOC
                */
 
             }
+
+            // We currently care just about the first drone
+            /*List<Telemetry> telemetryLst = getTelemetryList(clientId, clients[clientId].clientData.droneDataArr[0].vehicleId, messageExecutor);
+            Value latitudeValue = telemetryLst.Find(t => t.TelemetryField.Code == "latitude")?.Value;
+            Value longitudeValue = telemetryLst.Find(t => t.TelemetryField.Code == "longitude")?.Value;
+
+            if (latitudeValue != null)
+                clients[clientId].clientData.droneDataArr[0].latitude = Math.Round((double)getTelemetryValue(latitudeValue) * (180 / Math.PI), 7);
+            if (longitudeValue != null)
+                clients[clientId].clientData.droneDataArr[0].longitude = Math.Round((double)getTelemetryValue(longitudeValue) * (180 / Math.PI), 7);*/
 
         }
 
